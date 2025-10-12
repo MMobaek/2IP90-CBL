@@ -16,21 +16,31 @@ public class UILayout extends JFrame implements ActionListener {
 
     JButton leftArrow;
     JButton rightArrow;
+    private JLabel playerLabel;
+    private int playerX = 250;
+    private int playerY = 100;
+
+    /**
+     * For the player character.
+     */
+    
+    public void addPlayerIcon() {
+        // Icon of the player
+        ImageIcon playerIcon = new ImageIcon("cardboard-box-clipart-lg.png");
+        playerLabel = new JLabel(playerIcon, JLabel.CENTER);
+        playerLabel.setBounds(playerX, playerY, 100, 100); // Adjust x, y, width, height as needed
+        this.add(playerLabel);
+    }
 
     /**
      * implements the UI.
      */
     UILayout() {
-
         this.setLayout(null);
 
+        //Player Icon
+        addPlayerIcon();
 
-        // Icon of the player
-        ImageIcon playerIcon = new ImageIcon("cardboard-box-clipart-lg.png");
-        JLabel playerLabel = new JLabel(playerIcon, JLabel.CENTER);
-        playerLabel.setBounds(250, 100, 100, 100); // Adjust x, y, width, height as needed
-        this.add(playerLabel);
-        
         // Buttons. Can potentially also run the ActionListener when doing keyboard input aswell
         leftArrow = new JButton();
         leftArrow.setBounds(430, 300, 50, 35);
@@ -56,9 +66,16 @@ public class UILayout extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == leftArrow) {
             System.out.println("left");
+            if (playerX > 0) {
+                playerX -= 10;
+            }
         } 
         if (e.getSource() == rightArrow) {
             System.out.println("right");
+            if (playerX < 500) {
+                playerX += 10;
+            }
         }
+        playerLabel.setBounds(playerX, playerY, 100, 100);
     }
 }

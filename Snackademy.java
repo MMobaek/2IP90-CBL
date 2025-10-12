@@ -15,7 +15,6 @@ public class Snackademy {
 
 
         new UILayout(); // Makes use of the UISnackademy class where UI is mainly done.
-        new Player(); // Makes use of the Player class where the player stuff will be implemented.
 
 
     }
