@@ -1,7 +1,7 @@
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
-// import java.util.concurrent.TimeUnit;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -9,27 +9,48 @@ import javax.swing.JLabel;
 
 
 /**
- * The looks of snackademy.
+ * The looks and mechanics for snackademy.
  */
-
-
-
 public class UILayout extends JFrame implements ActionListener {
-
+    // Arrow Buttons
     JButton leftArrow;
     JButton rightArrow;
+    // Label of the player
     private JLabel playerLabel;
     private int playerX = 250;
     private int playerY = 100;
+    // Librarian icon and label, which changes depending on phase
+    ImageIcon librarianIcon;
+    private JLabel librarianLabel;
+    // Time (for determining when the next phase is)
     long startTime = System.currentTimeMillis();
     long endTime;
+    long elapsed;
+    // Determining how much time has to be waited
     Random random = new Random();
     int firstTransitionMilestone = random.nextInt(6000, 16000);
-    int secondTransitionMilestone = random.nextInt(1000, 3000);
+    int secondTransitionMilestone = random.nextInt(500, 2000);
     int thirdTransitionMilestone = random.nextInt(4000, 8000);
+    // Determining which phase it is
     boolean firstTransitionReached = false;
     boolean secondTransitionReached = false;
     boolean thirdTransitionReached = false;
+    // importing the librarian icons
+    ImageIcon inattentiveIconRaw = new ImageIcon("librarianInattentive.png");
+    ImageIcon transitionIconRaw = new ImageIcon("librarianTransition.png");
+    ImageIcon attentiveIconRaw = new ImageIcon("librarianAttentive.png");
+    // scaling the librarian image icon
+    int librarianX = 150;
+    int librarianY = 150;
+    Image inattentiveImg = inattentiveIconRaw.getImage()
+        .getScaledInstance(librarianX, librarianY, Image.SCALE_SMOOTH);
+    Image transitionImg = transitionIconRaw.getImage()
+        .getScaledInstance(librarianX, librarianY, Image.SCALE_SMOOTH);
+    Image attentiveImg = attentiveIconRaw.getImage()
+        .getScaledInstance(librarianX, librarianY, Image.SCALE_SMOOTH);
+    ImageIcon inattentiveIcon = new ImageIcon(inattentiveImg);
+    ImageIcon transitionIcon = new ImageIcon(transitionImg);
+    ImageIcon attentiveIcon = new ImageIcon(attentiveImg);
 
     /**
      * For the player character.
@@ -39,10 +60,40 @@ public class UILayout extends JFrame implements ActionListener {
         // Icon of the player
         ImageIcon playerIcon = new ImageIcon("cardboard-box-clipart-lg.png");
         playerLabel = new JLabel(playerIcon, JLabel.CENTER);
-        playerLabel.setBounds(playerX, playerY, 100, 100); // Adjust x, y, width, height as needed
+        playerLabel.setBounds(playerX, playerY, 100, 100);
         this.add(playerLabel);
     }
 
+    /**
+     * Adds the initial librarian.
+     */
+    public void addLibrarianIcon() {
+        // Icon of the librarian
+        librarianLabel = new JLabel(inattentiveIcon, JLabel.CENTER);
+        librarianLabel.setBounds(0, 225, librarianX, librarianY);
+        this.add(librarianLabel);
+    }
+
+    /**
+     * The transition phase of the librarian.
+     */
+    public void transition1() {
+        librarianLabel.setIcon(transitionIcon);
+    }
+
+    /**
+     * The attentive phase of the librarian.
+     */
+    public void transition2() {
+        librarianLabel.setIcon(attentiveIcon);
+    }
+
+    /**
+     * The inattentive phase of the librarian.
+     */
+    public void transition3() {
+        librarianLabel.setIcon(inattentiveIcon);
+    }
 
     /**
      * Does the librarian logic to see when it shall transition.
@@ -54,50 +105,35 @@ public class UILayout extends JFrame implements ActionListener {
     public void librarianStatus() {
         endTime = System.currentTimeMillis();
         System.out.println(endTime - startTime);
+        elapsed = endTime - startTime;
 
-        if (endTime - startTime >= firstTransitionMilestone && !firstTransitionReached) {
+        if (elapsed >= firstTransitionMilestone && !firstTransitionReached) {
             startTime = System.currentTimeMillis();
             firstTransitionReached = true;
             transition1();
-        } else if (endTime - startTime >= secondTransitionMilestone 
+            return;
+        }
+
+        if (elapsed >= secondTransitionMilestone 
             && firstTransitionReached && !secondTransitionReached) {
             startTime = System.currentTimeMillis();
             secondTransitionReached = true;
             transition2();
-        } else if (endTime - startTime >= thirdTransitionMilestone && secondTransitionReached) {
+            return;
+        } 
+
+        if (elapsed >= thirdTransitionMilestone && secondTransitionReached) {
             startTime = System.currentTimeMillis();
             firstTransitionReached = false;
             secondTransitionReached = false;
+            firstTransitionMilestone = random.nextInt(6000, 16000);
+            secondTransitionMilestone = random.nextInt(500, 2000);
+            thirdTransitionMilestone = random.nextInt(4000, 8000);
             transition3();
         }
     }
 
-    /**
-     * The transition phase of the librarian.
-     */
-    public void transition1() {
-        for (int i = 0; i < 20; i++) {
-            System.out.println("changing states: to Transition phase");
-        }
-    }
 
-    /**
-     * The attentive phase of the librarian.
-     */
-    public void transition2() {
-        for (int i = 0; i < 20; i++) {
-            System.out.println("changing states: to Attentive phase");
-        }
-    }
-
-    /**
-     * The inattentive phase of the librarian.
-     */
-    public void transition3() {
-        for (int i = 0; i < 20; i++) {
-            System.out.println("changing states: to Inattentive phase");
-        }
-    }
 
     /**
      * implements the UI.
@@ -107,6 +143,7 @@ public class UILayout extends JFrame implements ActionListener {
 
         //Player Icon
         addPlayerIcon();
+        addLibrarianIcon();
 
         // Buttons. Can potentially also run the ActionListener when doing keyboard input aswell
         leftArrow = new JButton();
