@@ -54,7 +54,7 @@ public class GameController implements ActionListener {
             while (true) {
                 librarian.updateStatus();
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(100); 
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;

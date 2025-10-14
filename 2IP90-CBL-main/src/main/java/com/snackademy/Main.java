@@ -1,5 +1,8 @@
 package snackademy;
 
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
 /**
  * The main entry point for the Snackademy game.
  *
@@ -42,6 +45,15 @@ public class Main {
      * @param args command-line arguments (not used)
      */
     public static void main(final String[] args) {
+        SwingUtilities.invokeLater(() -> { // Makes the startmenu come first, before the UI stuff.
+            JFrame frame = new JFrame("Snackademy");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(600, 400);
+
+            StartMenuScreen startMenu = new StartMenuScreen(frame);
+            frame.add(startMenu).setVisible(true);
+        });
+
         UILayout ui = new UILayout();
         new GameController(ui);
     }

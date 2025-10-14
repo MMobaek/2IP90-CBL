@@ -85,7 +85,8 @@ public class UILayout extends JFrame {
             }
         });
 
-        this.setVisible(true);
+        this.setVisible(true); // ChatGPT wanted me to remove this line for the UI. 
+        // I found it hard to create the UI, so I looked for some assistance.
     }
 
     /** Move the text horizontally by dx pixels. */

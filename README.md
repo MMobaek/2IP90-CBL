@@ -77,6 +77,8 @@ Inspired by “Red Light, Green Light”:
 
 4. Run the Main.java file to start the game.
 
+5. If you cannot run the Main.java, doing 'run java' might work instead
+
 ## Authors
 
 | Name          | 
