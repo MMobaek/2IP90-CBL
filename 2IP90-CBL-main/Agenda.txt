@@ -1,0 +1,20 @@
+1. Create a box which can move from on the screen
+    1. create the buttons
+    2. create the box
+    3. make the box move on input
+
+2. Make the librarian
+    1. create another box
+    2. wait a random t amount of time
+    3. after t time it goes to transition phase
+    4. after 1 sec it goes to next phase
+
+3. Implement interaction between librarian and player
+    1. player is in walking state for .5 seconds after input
+    2. if it is in this state while librarian is in attentive state, game over
+
+4. Add scoring/ snacking system
+
+5. UX and design
+    1. use proper icons
+    2. make 
