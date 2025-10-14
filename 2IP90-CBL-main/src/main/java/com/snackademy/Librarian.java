@@ -128,6 +128,7 @@ public class Librarian {
      */
     public void updateStatus() {
         elapsed = System.currentTimeMillis() - startTime;
+        System.out.println(elapsed);
 
         if (elapsed >= firstMilestone && !firstReached) {
             transitionTo(transitionIcon);
