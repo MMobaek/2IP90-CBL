@@ -33,7 +33,7 @@ public class MovingPlayer {
      * check).
      */
     protected void onMove() {
-        // Default does nothing
+        // Default does nothing - add player movement
     }
 
     /**
@@ -50,6 +50,7 @@ public class MovingPlayer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveLeft();
+                player.movingAnimation();
                 onMove();
             }
         });
@@ -61,6 +62,7 @@ public class MovingPlayer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveRight();
+                player.movingAnimation();
                 onMove();
             }
         });
@@ -72,6 +74,7 @@ public class MovingPlayer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveUp();
+                player.movingAnimation();
                 onMove();
             }
         });
@@ -83,6 +86,7 @@ public class MovingPlayer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveDown();
+                player.movingAnimation();
                 onMove();
             }
         });

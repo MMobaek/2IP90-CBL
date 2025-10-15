@@ -1,8 +1,12 @@
 package snackademy;
 
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.Timer;
 
 /**
  * Represents the player character in the Snackademy game.
@@ -39,6 +43,8 @@ public class Player {
     /** The player's image icon. */
     private final ImageIcon icon;
 
+    private Icon[] imageIcons;
+
     /** The visual size (width and height) of the player image in pixels. */
     private static final int SIZE = 100;
 
@@ -67,6 +73,8 @@ public class Player {
         icon = loadIcon();
         label = new JLabel(icon);
         label.setBounds(x, y, SIZE, SIZE);
+
+        loadAnimationIcons();
     }
 
     /**
@@ -77,7 +85,7 @@ public class Player {
      */
     private ImageIcon loadIcon() {
         java.net.URL url = getClass()
-                .getResource("/snackademy/resources/cardboard-box-clipart-lg.png");
+                .getResource("/snackademy/resources/Standing.png");
 
         if (url == null) {
             throw new RuntimeException("Player image not found");
@@ -90,6 +98,80 @@ public class Player {
             throw new RuntimeException("Failed to load player image", e);
         }
     }
+
+    /**
+     * Loads the animation for movement.
+     * 
+     * @throws RuntimeException if the image can't be found or read.
+     */
+
+    public void loadAnimationIcons() {
+        String[] imageNames = { // The files I want to load
+            "SnacksLeftFoot.png",
+            "SnacksRightFoot.png",
+            "SnacksStanding.png",
+            "LeftFoot.png",
+            "RightFoot.png",
+            "Standing.png"
+        };
+
+        imageIcons = new Icon[imageNames.length]; // The array of animationstates
+
+        for (int i = 0; i < imageNames.length; i++) {
+            // Uses concatination to get the proper dress of the images
+            java.net.URL url = getClass().getResource("/snackademy/resources/" + imageNames[i]);
+            if (url == null) {
+                throw new RuntimeException("Player image not found: " + imageNames[i]);
+            }
+
+            try {
+                Image img = javax.imageio.ImageIO.read(url);
+                // Using Elines scaling function blindly 
+                // (might end up with a slenderman or a dwarf)
+                imageIcons[i] = new ImageIcon(
+                    img.getScaledInstance(SIZE, SIZE, Image.SCALE_SMOOTH));
+                // movingAnimation();
+            } catch (Exception ex) {
+                throw new RuntimeException("Failed to load player image: " + imageNames[i], ex);
+            }
+        }
+    }
+
+    /** Sets the image icon of the player. */
+    public void movingAnimation(int imageIndex) {
+        label.setIcon(imageIcons[imageIndex]);
+    }
+
+    /** The walking animation of the player. */
+    public void movingAnimation() {
+        // Frame order: left foot, right foot, standing
+        int[] frames = {0, 2, 1, 2};
+        final int frameDelay = 150; // time between frames in ms
+        final int[] currentFrame = {0}; // mutable index for inner class
+
+        // Stop any previous animation timer to avoid overlap
+        // if (label.getClientProperty("animationTimer") instanceof Timer oldTimer) {
+        //     oldTimer.stop();
+        // }
+
+        Timer timer = new Timer(frameDelay, e -> {
+            label.setIcon(imageIcons[frames[currentFrame[0]]]); // show frame
+            currentFrame[0]++;
+
+            if (currentFrame[0] >= frames.length) {
+                ((Timer) e.getSource()).stop(); // stop animation
+                label.setIcon(imageIcons[2]); // return to standing
+            }
+        });
+
+        // Gives us the opportunity to stop prematurely
+        label.putClientProperty("animationTimer", timer);
+
+        timer.setInitialDelay(0);
+        timer.start();
+
+    }
+
 
     /**
      * Moves the player to the left by {@code STEP} pixels.

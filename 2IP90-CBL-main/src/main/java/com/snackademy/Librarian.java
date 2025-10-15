@@ -83,7 +83,10 @@ public class Librarian {
     public Librarian(int x, int y) {
         loadIcons();
         randomizeMilestones();
-        currentIcon = inattentiveIcon;
+        if (currentIcon == null) { // Remove after I've resurected the librarian.
+            // System.out.println("through");
+            currentIcon = inattentiveIcon;
+        }
         label = new JLabel(currentIcon, CENTER);
         label.setBounds(x, y, WIDTH, HEIGHT);
     }
@@ -128,7 +131,7 @@ public class Librarian {
      */
     public void updateStatus() {
         elapsed = System.currentTimeMillis() - startTime;
-        System.out.println(elapsed);
+        // System.out.println(elapsed);
 
         if (elapsed >= firstMilestone && !firstReached) {
             transitionTo(transitionIcon);
