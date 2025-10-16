@@ -4,81 +4,93 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Handles the game logic and event interactions for Snackademy.
- *
- * Controls button presses, keyboard movement, and updates the librarian’s
- * behavior
- * over time in a background loop.
+ * GameController connects the UILayout, player, and librarian.
+ * It handles player movement and updates the movable text when caught.
  */
 public class GameController implements ActionListener {
 
-    /** Reference to the UI layout. */
+    /** Reference to the user interface. */
     private final UILayout ui;
 
-    /** Player reference. */
+    /** The player controlled by the user. */
     private final Player player;
 
-    /** Librarian reference. */
+    /** The librarian who monitors the player. */
     private final Librarian librarian;
 
-    /** MovingPlayer controller for keyboard input. */
+    /** Handles keyboard-based player movement. */
     private final MovingPlayer movingPlayer;
 
     /**
-     * Constructs a controller attached to a given UI.
+     * Constructor sets up the game controller and initializes the game loop.
      *
-     * @param ui the UILayout object
+     * @param ui the user interface layout
      */
-    public GameController(final UILayout ui) {
+    public GameController(UILayout ui) {
+
         this.ui = ui;
         this.player = ui.getPlayer();
         this.librarian = ui.getLibrarian();
 
-        // Attach button listeners
+        // Listen to button clicks for movement
         ui.getLeftArrow().addActionListener(this);
         ui.getRightArrow().addActionListener(this);
 
-        // Attach keyboard movement using MovingPlayer
-        // Assuming gamePanel is accessible via UILayout
-        movingPlayer = new MovingPlayer(player, ui.getGamePanel());
+        // Initialize MovingPlayer with keyboard input
+        this.movingPlayer = new MovingPlayer(this.player, ui.getGamePanel());
 
-        // Start the librarian update loop
+        // Set callback to update movable text if caught
+        movingPlayer.setOnMoveCallback(() -> {
+            if (librarian.isAttentive()) {
+                ui.setMovableTextMessage("Oh no, you are caught!");
+            }
+        });
+
+        // Start librarian update loop
         startGameLoop();
     }
 
     /**
-     * Runs the main game loop that updates the librarian.
+     * Starts a background thread that updates the librarian's status.
      */
     private void startGameLoop() {
-        Thread loop = new Thread(() -> {
+        Thread thread = new Thread(() -> {
             while (true) {
                 librarian.updateStatus();
+
                 try {
-                    Thread.sleep(100); 
-                    // player.movingAnimation(2);
+                    Thread.sleep(100L);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    break;
+                    return;
                 }
             }
         });
-        loop.setDaemon(true);
-        loop.start();
+
+        thread.setDaemon(true);
+        thread.start();
     }
 
     /**
-     * Handles button press events.
+     * Handles arrow button clicks to move the player.
      *
-     * @param e the action event
+     * @param e the action event from the button
      */
     @Override
-    public void actionPerformed(final ActionEvent e) {
-        Object src = e.getSource();
+    public void actionPerformed(ActionEvent e) {
 
-        if (src == ui.getLeftArrow()) {
+        Object source = e.getSource();
+
+        if (source == ui.getLeftArrow()) {
             player.moveLeft();
-        } else if (src == ui.getRightArrow()) {
+            if (librarian.isAttentive()) {
+                ui.setMovableTextMessage("you are caught");
+            }
+        } else if (source == ui.getRightArrow()) {
             player.moveRight();
+            if (librarian.isAttentive()) {
+                ui.setMovableTextMessage("you are caught");
+            }
         }
     }
 }
