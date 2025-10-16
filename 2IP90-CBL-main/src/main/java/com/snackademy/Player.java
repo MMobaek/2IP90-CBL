@@ -11,17 +11,10 @@ import javax.swing.Timer;
 /**
  * Represents the player character in the Snackademy game.
  *
- * <p>
  * The player is represented by a movable {@code JLabel} containing an image.
  * The player can move horizontally and vertically within the game window using
  * the arrow keys or on-screen buttons.
  *
- * <p>
- * Follows the Eindhoven University of Technology 2IP90 Java Coding Standard
- * for readability and consistency.
- * 
- * @author
- *         Eindhoven University of Technology - 2IP90 Programming
  */
 public class Player {
 
@@ -258,4 +251,17 @@ public class Player {
     public ImageIcon getIcon() {
         return icon;
     }
+
+    /**
+     * Moves the player immediately to the specified coordinates.
+     *
+     * @param newX the x coordinate
+     * @param newY the y coordinate
+     */
+    public void moveTo(int newX, int newY) {
+        this.x = newX;
+        this.y = newY;
+        updateLabel();
+    }
+
 }

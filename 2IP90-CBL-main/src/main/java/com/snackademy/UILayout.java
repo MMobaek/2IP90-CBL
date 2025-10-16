@@ -6,137 +6,148 @@ import java.awt.event.ComponentEvent;
 import javax.swing.*;
 
 /**
- * Builds the visual environment of the Snackademy game.
- * Constructs the JFrame, adds the player, librarian, and a movable text label.
+ * UILayout sets up the main game window for Snackademy.
+ * It contains the player, librarian, desk, snack station, movable text, and buttons.
  */
 public class UILayout extends JFrame {
 
-    /** Player instance. */
     private final Player player;
-
-    /** Librarian instance. */
     private final Librarian librarian;
-
-    /** Movable text label. */
+    private final Desk desk;
+    private final Snackstation snackstation;
     private final JLabel movableText;
-
-    /** Left movement button. */
     private final JButton leftArrow;
-
-    /** Right movement button. */
     private final JButton rightArrow;
-
-    /** Panel where player, librarian, and text are drawn. */
     private final GamePanel gamePanel;
-
-    /** Movement step in pixels for the text. */
     private static final int TEXT_STEP = 10;
 
-    /**
-     * Constructs the Snackademy layout using BorderLayout.
-     */
+    /** Constructs the UI layout for the Snackademy game. */
     public UILayout() {
-        this.setTitle("Snackademy");
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(600, 400);
-        this.setLayout(new BorderLayout());
+        setTitle("Snackademy");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(600, 400);
+        setLayout(new BorderLayout());
 
-        // Create player and librarian
         player = new Player();
         librarian = new Librarian();
+        desk = new Desk(0, 0);
+        snackstation = new Snackstation(0, 0);
 
-        // Create movable text
-        movableText = new JLabel("Move with the letters AWSD or the arrows" +
-                " but do not get caught!");
+        movableText = new JLabel(
+            "Move with the letters AWSD or the arrows but do not get caught!"
+        );
         movableText.setFont(new Font("Arial", Font.BOLD, 24));
         movableText.setForeground(Color.BLACK);
-        movableText.setBounds(50, 20, 1200, 40); // initial position
+        movableText.setBounds(50, 20, 1200, 40);
 
-        // Game panel in the center
         gamePanel = new GamePanel();
-        gamePanel.setLayout(null); // absolute positioning
-        this.add(gamePanel, BorderLayout.CENTER);
+        gamePanel.setLayout(null);
+        add(gamePanel, BorderLayout.CENTER);
 
-        // Add player JLabel and movable text
         gamePanel.add(player.getLabel());
+        gamePanel.add(librarian.getLabel());
+        gamePanel.add(desk.getLabel());
+        gamePanel.add(snackstation.getLabel());
         gamePanel.add(movableText);
 
-        // Panel for buttons at the bottom
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         leftArrow = new JButton("<-");
         rightArrow = new JButton("->");
-
         leftArrow.setFocusable(false);
         rightArrow.setFocusable(false);
-
         buttonPanel.add(leftArrow);
         buttonPanel.add(rightArrow);
-        this.add(buttonPanel, BorderLayout.SOUTH);
+        add(buttonPanel, BorderLayout.SOUTH);
 
-        // Button actions to move the text
         leftArrow.addActionListener(e -> moveText(-TEXT_STEP));
         rightArrow.addActionListener(e -> moveText(TEXT_STEP));
 
-        // Repaint and resize images when window changes size
-        this.addComponentListener(new ComponentAdapter() {
+        addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                gamePanel.repaint();
+                positionObjects();
             }
         });
 
-        this.setVisible(true); // ChatGPT wanted me to remove this line for the UI. 
-        // I found it hard to create the UI, so I looked for some assistance.
+        SwingUtilities.invokeLater(this::positionObjects);
+        setVisible(true);
     }
 
-    /** Move the text horizontally by dx pixels. */
+    /**
+     * Moves the movable text horizontally by dx pixels.
+     *
+     * @param dx distance to move
+     */
     private void moveText(int dx) {
         int newX = movableText.getX() + dx;
         newX = Math.max(0, Math.min(newX, gamePanel.getWidth() - movableText.getWidth()));
         movableText.setLocation(newX, movableText.getY());
     }
 
-    /** Returns the left arrow button. */
-    public JButton getLeftArrow() {
-        return leftArrow;
+    private void positionObjects() {
+        int panelWidth = gamePanel.getWidth();
+        int panelHeight = gamePanel.getHeight();
+
+        // Snackstation
+        int snackWidth = panelWidth / 8;
+        int snackHeight = panelHeight / 4;
+        int snackX = 10;
+        int snackY = panelHeight / 2 - snackHeight / 2;
+        snackstation.getLabel().setSize(snackWidth, snackHeight);
+        snackstation.getLabel().setIcon(snackstation.getScaledIcon(snackWidth, snackHeight));
+        snackstation.getLabel().setLocation(snackX, snackY);
+
+        // Player: set internal position and label to snackstation
+        player.resetPosition(); // reset to default start first
+        player.moveTo(snackX, snackY); // move internal x,y and label
+
+        // Desk
+        int deskWidth = panelWidth / 8;
+        int deskHeight = panelHeight / 4;
+        desk.getLabel().setSize(deskWidth, deskHeight);
+        desk.getLabel().setIcon(desk.getScaledIcon(deskWidth, deskHeight));
+        desk.getLabel().setLocation(panelWidth - 10 - deskWidth, panelHeight / 2 - deskHeight / 2);
+
+        // Librarian
+        int librarianWidth = panelWidth / 8;
+        int librarianHeight = panelHeight / 4;
+        librarian.getLabel().setSize(librarianWidth, librarianHeight);
+        librarian.getLabel().setIcon(
+            librarian.getScaledIcon(librarian.getCurrentStateName(), librarianWidth, librarianHeight)
+        );
+        librarian.getLabel().setLocation(panelWidth / 2 - librarianWidth / 2,
+                                        panelHeight / 2 - librarianHeight / 2);
     }
 
-    /** Returns the right arrow button. */
-    public JButton getRightArrow() {
-        return rightArrow;
+
+    public Player getPlayer() { return player; }
+
+    public Librarian getLibrarian() { return librarian; }
+
+    public JButton getLeftArrow() { return leftArrow; }
+
+    public JButton getRightArrow() { return rightArrow; }
+
+    public JComponent getGamePanel() { return gamePanel; }
+
+    /**
+     * Updates the movable text displayed at the top of the game screen.
+     *
+     * @param message new message text
+     */
+    public void setMovableTextMessage(String message) {
+        SwingUtilities.invokeLater(() -> {
+            movableText.setText(message);
+            movableText.revalidate();
+            movableText.repaint();
+        });
     }
 
-    /** Returns the player instance. */
-    public Player getPlayer() {
-        return player;
-    }
-
-    /** Returns the librarian instance. */
-    public Librarian getLibrarian() {
-        return librarian;
-    }
-
-    /** Returns the main game panel where items are drawn. */
-    public JComponent getGamePanel() {
-        return gamePanel;
-    }
-
-    /** Inner class for the center panel that draws the librarian. */
+    /** Custom panel to hold all game elements. */
     private class GamePanel extends JPanel {
-
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
-
-            int panelWidth = getWidth();
-            int panelHeight = getHeight();
-
-            // Draw librarian on the left
-            int librarianWidth = panelWidth / 6;
-            int librarianHeight = panelHeight / 3;
-            Image librarianImg = librarian.getIcon().getImage()
-                    .getScaledInstance(librarianWidth, librarianHeight, Image.SCALE_SMOOTH);
-            g.drawImage(librarianImg, 10, panelHeight - librarianHeight - 10, this);
         }
     }
 }

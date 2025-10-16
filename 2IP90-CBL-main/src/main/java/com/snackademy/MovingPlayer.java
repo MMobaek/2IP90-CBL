@@ -10,11 +10,14 @@ import javax.swing.*;
  */
 public class MovingPlayer {
 
-    /** Reference to the Player object. */
+    /** Reference to the Player object that will be moved. */
     private final Player player;
 
-    /** The component to which key bindings are added (usually the game panel). */
+    /** The Swing component that receives keyboard input (usually the game panel). */
     private final JComponent component;
+
+    /** Callback that is triggered after each movement (optional). */
+    private Runnable onMoveCallback;
 
     /**
      * Constructs a MovingPlayer controller.
@@ -25,28 +28,40 @@ public class MovingPlayer {
     public MovingPlayer(final Player player, final JComponent component) {
         this.player = player;
         this.component = component;
+        this.onMoveCallback = null; // default no callback
         setupKeyBindings();
     }
 
     /**
-     * Called after every movement. Override to add custom behavior (e.g., caught
-     * check).
+     * Called after every movement. Can be overridden for custom behavior,
+     * e.g., checking if the player is caught.
      */
     protected void onMove() {
-        // Default does nothing - add player movement
+        if (onMoveCallback != null) {
+            onMoveCallback.run();
+        }
     }
 
     /**
-     * Sets up key bindings for WASD and arrow keys.
+     * Sets a callback to be executed every time the player moves.
+     *
+     * @param callback a Runnable to run on each movement
+     */
+    public void setOnMoveCallback(final Runnable callback) {
+        this.onMoveCallback = callback;
+    }
+
+    /**
+     * Configures keyboard bindings for movement using arrow keys and WASD.
      */
     private void setupKeyBindings() {
-        InputMap im = component.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        ActionMap am = component.getActionMap();
+        InputMap inputMap = component.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = component.getActionMap();
 
         // Left movement
-        im.put(KeyStroke.getKeyStroke("LEFT"), "moveLeft");
-        im.put(KeyStroke.getKeyStroke("A"), "moveLeft");
-        am.put("moveLeft", new AbstractAction() {
+        inputMap.put(KeyStroke.getKeyStroke("LEFT"), "moveLeft");
+        inputMap.put(KeyStroke.getKeyStroke("A"), "moveLeft");
+        actionMap.put("moveLeft", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveLeft();
@@ -56,9 +71,9 @@ public class MovingPlayer {
         });
 
         // Right movement
-        im.put(KeyStroke.getKeyStroke("RIGHT"), "moveRight");
-        im.put(KeyStroke.getKeyStroke("D"), "moveRight");
-        am.put("moveRight", new AbstractAction() {
+        inputMap.put(KeyStroke.getKeyStroke("RIGHT"), "moveRight");
+        inputMap.put(KeyStroke.getKeyStroke("D"), "moveRight");
+        actionMap.put("moveRight", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveRight();
@@ -68,9 +83,9 @@ public class MovingPlayer {
         });
 
         // Up movement
-        im.put(KeyStroke.getKeyStroke("UP"), "moveUp");
-        im.put(KeyStroke.getKeyStroke("W"), "moveUp");
-        am.put("moveUp", new AbstractAction() {
+        inputMap.put(KeyStroke.getKeyStroke("UP"), "moveUp");
+        inputMap.put(KeyStroke.getKeyStroke("W"), "moveUp");
+        actionMap.put("moveUp", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveUp();
@@ -80,9 +95,9 @@ public class MovingPlayer {
         });
 
         // Down movement
-        im.put(KeyStroke.getKeyStroke("DOWN"), "moveDown");
-        im.put(KeyStroke.getKeyStroke("S"), "moveDown");
-        am.put("moveDown", new AbstractAction() {
+        inputMap.put(KeyStroke.getKeyStroke("DOWN"), "moveDown");
+        inputMap.put(KeyStroke.getKeyStroke("S"), "moveDown");
+        actionMap.put("moveDown", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveDown();
