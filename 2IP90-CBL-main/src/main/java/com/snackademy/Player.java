@@ -251,4 +251,17 @@ public class Player {
     public ImageIcon getIcon() {
         return icon;
     }
+
+    /**
+     * Moves the player immediately to the specified coordinates.
+     *
+     * @param newX the x coordinate
+     * @param newY the y coordinate
+     */
+    public void moveTo(int newX, int newY) {
+        this.x = newX;
+        this.y = newY;
+        updateLabel();
+    }
+
 }

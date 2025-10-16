@@ -7,50 +7,34 @@ import javax.swing.JLabel;
 
 /**
  * Represents the librarian in the Snackademy game.
- *
- * <p>The librarian alternates between three attention states:
- * INATTENTIVE → TRANSITION → ATTENTIVE → back to INATTENTIVE.
- * Each phase lasts for a random duration defined by milestone times.</p>
+ * The librarian alternates between INATTENTIVE → TRANSITION → ATTENTIVE → INATTENTIVE.
  */
 public class Librarian {
 
-    /** Width and height of the librarian image. */
     private static final int SIZE = 150;
-
-    /** Alignment constant for the JLabel. */
     private static final int CENTER = JLabel.CENTER;
 
-    /** Visual representation of the librarian. */
     private final JLabel label;
-
-    /** Random generator for timing milestones. */
     private final Random random = new Random();
-
-    /** The librarian’s current attention state. */
     private State currentState = State.INATTENTIVE;
 
-    /** Icons for each attention state. */
     private ImageIcon inattentiveIcon;
     private ImageIcon transitionIcon;
     private ImageIcon attentiveIcon;
-
-    /** Currently displayed icon. */
     private ImageIcon currentIcon;
 
-    /** Timing values for the state transitions. */
     private long startTime = System.currentTimeMillis();
     private int firstMilestone;
     private int secondMilestone;
     private int thirdMilestone;
 
-    /** Defines the three librarian attention states. */
     private enum State {
         INATTENTIVE,
         TRANSITION,
         ATTENTIVE
     }
 
-    /** Constructs a librarian at position (0, 0). */
+    /** Default constructor placing librarian at (0,0). */
     public Librarian() {
         this(0, 0);
     }
@@ -69,9 +53,7 @@ public class Librarian {
         label.setBounds(x, y, SIZE, SIZE);
     }
 
-    /**
-     * Loads and scales all icons for the librarian’s states.
-     */
+    /** Loads icons for all librarian states. */
     private void loadIcons() {
         inattentiveIcon = loadAndScale("/snackademy/resources/librarianInattentive.png");
         transitionIcon = loadAndScale("/snackademy/resources/librarianTransition.png");
@@ -81,8 +63,8 @@ public class Librarian {
     /**
      * Loads and scales an image to the standard librarian size.
      *
-     * @param path Path of the image in resources.
-     * @return The scaled {@link ImageIcon}.
+     * @param path path of the image in resources
+     * @return scaled ImageIcon
      */
     private ImageIcon loadAndScale(String path) {
         java.net.URL url = getClass().getResource(path);
@@ -98,85 +80,44 @@ public class Librarian {
         }
     }
 
-    /**
-     * Checks if the librarian is currently attentive.
-     *
-     * @return {@code true} if in the ATTENTIVE state.
-     */
+    /** Returns true if the librarian is currently attentive. */
     public boolean isAttentive() {
         return currentState == State.ATTENTIVE;
     }
 
-    /**
-     * Updates the librarian’s attention state based on elapsed time.
-     * Call this periodically from the game loop.
-     */
+    /** Updates the librarian state based on elapsed time. Call this periodically. */
     public void updateStatus() {
         long elapsed = System.currentTimeMillis() - startTime;
 
-        // Debug print
-        System.out.println("[Lib] elapsed=" + elapsed
-                + " first=" + firstMilestone
-                + " second=" + secondMilestone
-                + " third=" + thirdMilestone
-                + " state=" + currentState);
-
         switch (currentState) {
-            case INATTENTIVE:
-                handleInattentive(elapsed);
+            case INATTENTIVE: {
+                if (elapsed >= firstMilestone) {
+                    transitionTo(State.TRANSITION, transitionIcon);
+                }
                 break;
-
-            case TRANSITION:
-                handleTransition(elapsed);
+            }
+            case TRANSITION: {
+                if (elapsed >= secondMilestone) {
+                    transitionTo(State.ATTENTIVE, attentiveIcon);
+                }
                 break;
-
-            case ATTENTIVE:
-                handleAttentive(elapsed);
+            }
+            case ATTENTIVE: {
+                if (elapsed >= thirdMilestone) {
+                    resetCycle();
+                }
                 break;
-
+            }
             default:
                 throw new IllegalStateException("Unknown state: " + currentState);
         }
     }
 
     /**
-     * Handles transition from the INATTENTIVE state.
+     * Changes the librarian state and updates the icon.
      *
-     * @param elapsed Time elapsed since last state change.
-     */
-    private void handleInattentive(long elapsed) {
-        if (elapsed >= firstMilestone) {
-            transitionTo(State.TRANSITION, transitionIcon);
-        }
-    }
-
-    /**
-     * Handles transition from the TRANSITION state.
-     *
-     * @param elapsed Time elapsed since last state change.
-     */
-    private void handleTransition(long elapsed) {
-        if (elapsed >= secondMilestone) {
-            transitionTo(State.ATTENTIVE, attentiveIcon);
-        }
-    }
-
-    /**
-     * Handles transition from the ATTENTIVE state.
-     *
-     * @param elapsed Time elapsed since last state change.
-     */
-    private void handleAttentive(long elapsed) {
-        if (elapsed >= thirdMilestone) {
-            resetCycle();
-        }
-    }
-
-    /**
-     * Changes the librarian’s icon and updates internal state.
-     *
-     * @param nextState New state.
-     * @param icon      Icon representing that state.
+     * @param nextState new state
+     * @param icon icon for the new state
      */
     private void transitionTo(State nextState, ImageIcon icon) {
         currentState = nextState;
@@ -185,48 +126,56 @@ public class Librarian {
         startTime = System.currentTimeMillis();
     }
 
-    /**
-     * Resets the librarian to the inattentive state
-     * and starts a new random attention cycle.
-     */
+    /** Resets the librarian to INATTENTIVE state and randomizes milestones. */
     private void resetCycle() {
         randomizeMilestones();
         transitionTo(State.INATTENTIVE, inattentiveIcon);
     }
 
-    /**
-     * Randomly assigns milestone times (ms) for a new cycle.
-     */
+    /** Randomizes milestone durations for the next cycle. */
     private void randomizeMilestones() {
-        firstMilestone = random.nextInt(10000) + 6000; // 6–16 s
-        secondMilestone = random.nextInt(1500) + 500;  // 0.5–2 s
-        thirdMilestone = random.nextInt(4000) + 4000;  // 4–8 s
+        firstMilestone = random.nextInt(10000) + 6000;
+        secondMilestone = random.nextInt(1500) + 500;
+        thirdMilestone = random.nextInt(4000) + 4000;
     }
 
-    /**
-     * Returns the JLabel for display on the panel.
-     *
-     * @return the JLabel representing the librarian.
-     */
+    /** Returns the JLabel representing the librarian. */
     public JLabel getLabel() {
         return label;
     }
 
-    /**
-     * Returns the currently displayed icon.
-     *
-     * @return the current {@link ImageIcon}.
-     */
+    /** Returns the current icon of the librarian. */
     public ImageIcon getIcon() {
         return currentIcon;
     }
 
-    /**
-     * Returns the icon used when the librarian is attentive.
-     *
-     * @return the attentive state {@link ImageIcon}.
-     */
+    /** Returns the attentive state icon. */
     public ImageIcon getAttentiveIcon() {
         return attentiveIcon;
+    }
+
+    /**
+     * Returns a scaled icon for a given state.
+     *
+     * @param state "INATTENTIVE", "TRANSITION", "ATTENTIVE"
+     * @param width desired width
+     * @param height desired height
+     * @return scaled ImageIcon
+     */
+    public ImageIcon getScaledIcon(String state, int width, int height) {
+        ImageIcon baseIcon;
+        switch (state) {
+            case "INATTENTIVE": baseIcon = inattentiveIcon; break;
+            case "TRANSITION": baseIcon = transitionIcon; break;
+            case "ATTENTIVE": baseIcon = attentiveIcon; break;
+            default: baseIcon = currentIcon;
+        }
+        Image img = baseIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        return new ImageIcon(img);
+    }
+
+    /** Returns the current state name as a string. */
+    public String getCurrentStateName() {
+        return currentState.name();
     }
 }
