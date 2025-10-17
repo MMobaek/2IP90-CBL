@@ -113,22 +113,33 @@ public class UILayout extends JFrame {
         int librarianHeight = panelHeight / 4;
         librarian.getLabel().setSize(librarianWidth, librarianHeight);
         librarian.getLabel().setIcon(
-            librarian.getScaledIcon(librarian.getCurrentStateName(), librarianWidth, librarianHeight)
+            librarian.getScaledIcon(librarian.getCurrentStateName(), 
+            librarianWidth, librarianHeight)
         );
         librarian.getLabel().setLocation(panelWidth / 2 - librarianWidth / 2,
                                         panelHeight / 2 - librarianHeight / 2);
     }
 
 
-    public Player getPlayer() { return player; }
+    public Player getPlayer() { 
+        return player; 
+    }
 
-    public Librarian getLibrarian() { return librarian; }
+    public Librarian getLibrarian() { 
+        return librarian; 
+    }
 
-    public JButton getLeftArrow() { return leftArrow; }
+    public JButton getLeftArrow() {
+        return leftArrow; 
+    }
 
-    public JButton getRightArrow() { return rightArrow; }
+    public JButton getRightArrow() { 
+        return rightArrow; 
+    }
 
-    public JComponent getGamePanel() { return gamePanel; }
+    public JComponent getGamePanel() { 
+        return gamePanel; 
+    }
 
     /**
      * Updates the movable text displayed at the top of the game screen.

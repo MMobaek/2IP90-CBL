@@ -49,7 +49,7 @@ public class CaughtScreen {
         overlayPanel.repaint();
     }
 
-    /** Removes overlay and calls retry callback */
+    /** Removes overlay and calls retry callback. */
     private void removeOverlay(JFrame parent, Runnable onRetry) {
         parent.getLayeredPane().remove(overlayPanel);
         parent.getLayeredPane().repaint();

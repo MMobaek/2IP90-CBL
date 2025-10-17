@@ -65,7 +65,7 @@ public class MovingPlayer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveLeft();
-                player.movingAnimation();
+                player.movingAnimation(0, 1);
                 onMove();
             }
         });
@@ -77,7 +77,7 @@ public class MovingPlayer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveRight();
-                player.movingAnimation();
+                player.movingAnimation(1, 0);
                 onMove();
             }
         });
@@ -89,7 +89,7 @@ public class MovingPlayer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveUp();
-                player.movingAnimation();
+                player.movingAnimation(2, 2);
                 onMove();
             }
         });
@@ -101,7 +101,7 @@ public class MovingPlayer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveDown();
-                player.movingAnimation();
+                player.movingAnimation(2, 2);
                 onMove();
             }
         });

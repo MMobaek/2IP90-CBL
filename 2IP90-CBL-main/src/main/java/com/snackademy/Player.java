@@ -1,5 +1,6 @@
 package snackademy;
 
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,6 +30,10 @@ public class Player {
 
     /** The starting vertical position of the player. */
     private final int startY;
+
+    private final int[] frames = {3, 5, 4, 5};
+
+    boolean rightFacing = true;
 
     /** The JLabel used to visually represent the player. */
     private final JLabel label;
@@ -131,29 +136,50 @@ public class Player {
     }
 
     /** Sets the image icon of the player. */
-    public void movingAnimation(int imageIndex) {
+    public void changeImg(int imageIndex) {
         label.setIcon(imageIcons[imageIndex]);
     }
 
     /** The walking animation of the player. */
-    public void movingAnimation() {
+    public void movingAnimation(int snackStatus, int direction) {
         // Frame order: left foot, right foot, standing
-        int[] frames = {0, 2, 1, 2};
+        if (snackStatus == 0) { // 0: holding nothing
+            frames[0] = 3;
+            frames[1] = 5;
+            frames[2] = 4;
+            frames[3] = 5;
+        } else if (snackStatus == 1) { // 1: holding snacks
+            frames[0] = 0;
+            frames[1] = 2;
+            frames[2] = 1;
+            frames[3] = 2;
+        } // Nothing happens on snackStatus == 2
+
+        if (direction == 0) {
+            rightFacing = true;
+        } else if (direction == 1) {
+            rightFacing = false;
+        } // Nothing happens on direction == 2
+
         final int frameDelay = 150; // time between frames in ms
         final int[] currentFrame = {0}; // mutable index for inner class
 
-        // Stop any previous animation timer to avoid overlap
-        // if (label.getClientProperty("animationTimer") instanceof Timer oldTimer) {
-        //     oldTimer.stop();
-        // }
-
         Timer timer = new Timer(frameDelay, e -> {
-            label.setIcon(imageIcons[frames[currentFrame[0]]]); // show frame
+            if (rightFacing) {
+                label.setIcon(imageIcons[frames[currentFrame[0]]]); // show frame
+            } else if (!rightFacing) {
+                label.setIcon(horizontalFlip(imageIcons[frames[currentFrame[0]]]));
+            }
+
             currentFrame[0]++;
 
             if (currentFrame[0] >= frames.length) {
                 ((Timer) e.getSource()).stop(); // stop animation
-                label.setIcon(imageIcons[2]); // return to standing
+                if (rightFacing) {
+                    label.setIcon(imageIcons[frames[3]]); // show frame
+                } else if (!rightFacing) {
+                    label.setIcon(horizontalFlip(imageIcons[frames[3]]));
+                }
             }
         });
 
@@ -164,6 +190,29 @@ public class Player {
         timer.start();
 
     }
+
+    /** Flips the player icon horizontally. */
+    public static ImageIcon horizontalFlip(Icon icon) {
+        if (!(icon instanceof ImageIcon)) {
+            throw new IllegalArgumentException("Icon must be an ImageIcon");
+        }
+
+        Image img = ((ImageIcon) icon).getImage();
+        int w = icon.getIconWidth();
+        int h = icon.getIconHeight();
+
+        java.awt.image.BufferedImage flipped = new java.awt.image.BufferedImage(
+            w, h, java.awt.image.BufferedImage.TYPE_INT_ARGB
+        );
+
+        Graphics2D g = flipped.createGraphics();
+        // Draw the image mirrored horizontally
+        g.drawImage(img, 0, 0, w, h, w, 0, 0, h, null);
+        g.dispose();
+
+        return new ImageIcon(flipped);
+    }
+
 
 
     /**
@@ -263,5 +312,4 @@ public class Player {
         this.y = newY;
         updateLabel();
     }
-
 }
