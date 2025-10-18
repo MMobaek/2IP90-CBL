@@ -29,7 +29,7 @@ public class UILayout extends JFrame {
         setLayout(new BorderLayout());
 
         player = new Player();
-        librarian = new Librarian();
+        librarian = new Librarian(0, 0);
         desk = new Desk(0, 0);
         snackstation = new Snackstation(0, 0);
 
@@ -37,11 +37,12 @@ public class UILayout extends JFrame {
             "Move with the letters AWSD or the arrows but do not get caught!"
         );
         movableText.setFont(new Font("Arial", Font.BOLD, 24));
-        movableText.setForeground(Color.BLACK);
+        movableText.setForeground(Color.WHITE);
         movableText.setBounds(50, 20, 1200, 40);
 
         gamePanel = new GamePanel();
         gamePanel.setLayout(null);
+        setExtendedState(Frame.MAXIMIZED_BOTH);
         add(gamePanel, BorderLayout.CENTER);
 
         gamePanel.add(player.getLabel());
@@ -116,8 +117,8 @@ public class UILayout extends JFrame {
             librarian.getScaledIcon(librarian.getCurrentStateName(), 
             librarianWidth, librarianHeight)
         );
-        librarian.getLabel().setLocation(panelWidth / 2 - librarianWidth / 2,
-                                        panelHeight / 2 - librarianHeight / 2);
+        librarian.getLabel().setLocation(1 * panelWidth / 2 - librarianWidth / 2,
+                                        4 * panelHeight / 5 - librarianHeight / 2);
     }
 
 
@@ -156,9 +157,19 @@ public class UILayout extends JFrame {
 
     /** Custom panel to hold all game elements. */
     private class GamePanel extends JPanel {
+        
+        private Image backgroundLibrary;
+
+        public GamePanel() {
+            backgroundLibrary = new ImageIcon(getClass().getResource(
+                "/snackademy/resources/Background.png")).getImage();
+        }
+
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
+            // background image
+            g.drawImage(backgroundLibrary, 0, 0, getWidth(), getHeight(), this);
         }
     }
 }
