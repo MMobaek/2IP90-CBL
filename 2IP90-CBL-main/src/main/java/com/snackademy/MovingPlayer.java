@@ -65,7 +65,8 @@ public class MovingPlayer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveLeft();
-                player.movingAnimation(0, 1);
+                player.setRightFacing(false);
+                player.movingAnimation(1); // direction only
                 onMove();
             }
         });
@@ -77,7 +78,8 @@ public class MovingPlayer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveRight();
-                player.movingAnimation(1, 0);
+                player.setRightFacing(true);
+                player.movingAnimation(0); // direction only
                 onMove();
             }
         });
@@ -89,7 +91,7 @@ public class MovingPlayer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveUp();
-                player.movingAnimation(2, 2);
+                player.movingAnimation(2); // direction only
                 onMove();
             }
         });
@@ -101,7 +103,7 @@ public class MovingPlayer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveDown();
-                player.movingAnimation(2, 2);
+                player.movingAnimation(2); // direction only
                 onMove();
             }
         });

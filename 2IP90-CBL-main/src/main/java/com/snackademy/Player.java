@@ -2,8 +2,7 @@ package snackademy;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -11,56 +10,39 @@ import javax.swing.Timer;
 
 /**
  * Represents the player character in the Snackademy game.
- *
- * The player is represented by a movable {@code JLabel} containing an image.
- * The player can move horizontally and vertically within the game window using
- * the arrow keys or on-screen buttons.
- *
+ * Handles movement, animation, and snack state.
  */
 public class Player {
 
-    /** The horizontal position of the player. */
     private int x;
-
-    /** The vertical position of the player. */
     private int y;
-
-    /** The starting horizontal position of the player. */
     private final int startX;
-
-    /** The starting vertical position of the player. */
     private final int startY;
 
-    private final int[] frames = {3, 5, 4, 5};
+    private boolean rightFacing = true;
+    private boolean hasSnack = false; // Track if player has snack
 
-    boolean rightFacing = true;
-
-    /** The JLabel used to visually represent the player. */
     private final JLabel label;
-
-    /** The player's image icon. */
     private final ImageIcon icon;
-
     private Icon[] imageIcons;
 
-    /** The visual size (width and height) of the player image in pixels. */
-    private static final int SIZE = 100;
+    private static final int SIZE = 100; // Player image size in pixels
+    private static final int STEP = 10;  // Movement step size in pixels
 
-    /** The number of pixels the player moves per step. */
-    private static final int STEP = 10;
+    private int[] frames = {3, 5, 4, 5}; // Current animation frames
 
     /**
-     * Constructs a player at the default position (0, 0).
+     * Constructs a player at default position (0, 0).
      */
     public Player() {
         this(0, 0);
     }
 
     /**
-     * Constructs a player at the specified starting coordinates.
+     * Constructs a player at specified start coordinates.
      *
-     * @param startX the initial x position of the player
-     * @param startY the initial y position of the player
+     * @param startX The initial X coordinate
+     * @param startY The initial Y coordinate
      */
     public Player(final int startX, final int startY) {
         this.startX = startX;
@@ -76,15 +58,13 @@ public class Player {
     }
 
     /**
-     * Loads and scales the player's image.
+     * Loads the default standing image.
      *
-     * @return the loaded and scaled ImageIcon
-     * @throws RuntimeException if the image cannot be found or read
+     * @return ImageIcon of the standing player
+     * @throws RuntimeException if the image cannot be found or loaded
      */
     private ImageIcon loadIcon() {
-        java.net.URL url = getClass()
-                .getResource("/snackademy/resources/Standing.png");
-
+        java.net.URL url = getClass().getResource("/snackademy/resources/Standing.png");
         if (url == null) {
             throw new RuntimeException("Player image not found");
         }
@@ -98,13 +78,12 @@ public class Player {
     }
 
     /**
-     * Loads the animation for movement.
-     * 
-     * @throws RuntimeException if the image can't be found or read.
+     * Loads all animation images for the player.
+     *
+     * @throws RuntimeException if any animation image cannot be found or loaded
      */
-
     public void loadAnimationIcons() {
-        String[] imageNames = { // The files I want to load
+        String[] imageNames = {
             "SnacksLeftFoot.png",
             "SnacksRightFoot.png",
             "SnacksStanding.png",
@@ -113,85 +92,123 @@ public class Player {
             "Standing.png"
         };
 
-        imageIcons = new Icon[imageNames.length]; // The array of animationstates
+        imageIcons = new Icon[imageNames.length];
 
         for (int i = 0; i < imageNames.length; i++) {
-            // Uses concatination to get the proper dress of the images
-            java.net.URL url = getClass().getResource("/snackademy/resources/" + imageNames[i]);
+            java.net.URL url = getClass().getResource(
+                "/snackademy/resources/" + imageNames[i]
+            );
+
             if (url == null) {
                 throw new RuntimeException("Player image not found: " + imageNames[i]);
             }
 
             try {
                 Image img = javax.imageio.ImageIO.read(url);
-                // Using Elines scaling function blindly 
-                // (might end up with a slenderman or a dwarf)
                 imageIcons[i] = new ImageIcon(
-                    img.getScaledInstance(SIZE, SIZE, Image.SCALE_SMOOTH));
-                // movingAnimation();
+                    img.getScaledInstance(SIZE, SIZE, Image.SCALE_SMOOTH)
+                );
             } catch (Exception ex) {
-                throw new RuntimeException("Failed to load player image: " + imageNames[i], ex);
+                throw new RuntimeException(
+                    "Failed to load player image: " + imageNames[i], ex
+                );
             }
         }
     }
 
-    /** Sets the image icon of the player. */
-    public void changeImg(int imageIndex) {
-        label.setIcon(imageIcons[imageIndex]);
+    /**
+     * Sets the movement direction of the player.
+     *
+     * @param right true if the player is facing right, false if left
+     */
+    public void setRightFacing(boolean right) {
+        this.rightFacing = right;
     }
 
-    /** The walking animation of the player. */
-    public void movingAnimation(int snackStatus, int direction) {
-        // Frame order: left foot, right foot, standing
-        if (snackStatus == 0) { // 0: holding nothing
-            frames[0] = 3;
-            frames[1] = 5;
-            frames[2] = 4;
-            frames[3] = 5;
-        } else if (snackStatus == 1) { // 1: holding snacks
+    /**
+     * Returns whether the player is facing right.
+     *
+     * @return true if facing right, false if left
+     */
+    public boolean isRightFacing() {
+        return rightFacing;
+    }
+
+    /**
+     * Sets whether the player has a snack.
+     *
+     * @param hasSnack true if player holds a snack, false otherwise
+     */
+    public void setHasSnack(boolean hasSnack) {
+        this.hasSnack = hasSnack;
+    }
+
+    /**
+     * Returns whether the player currently has a snack.
+     *
+     * @return true if holding a snack, false otherwise
+     */
+    public boolean hasSnack() {
+        return hasSnack;
+    }
+
+    /**
+     * Animates the player based on snack state and direction.
+     *
+     * @param direction 0 if facing right, 1 if facing left
+     */
+    public void movingAnimation(int direction) {
+        if (hasSnack) {
             frames[0] = 0;
             frames[1] = 2;
             frames[2] = 1;
             frames[3] = 2;
-        } // Nothing happens on snackStatus == 2
+        } else {
+            frames[0] = 3;
+            frames[1] = 5;
+            frames[2] = 4;
+            frames[3] = 5;
+        }
 
-        if (direction == 0) {
-            rightFacing = true;
-        } else if (direction == 1) {
-            rightFacing = false;
-        } // Nothing happens on direction == 2
+        rightFacing = (direction == 0);
 
-        final int frameDelay = 150; // time between frames in ms
-        final int[] currentFrame = {0}; // mutable index for inner class
+        final int frameDelay = 150;
+        final int[] currentFrame = {0};
 
         Timer timer = new Timer(frameDelay, e -> {
-            if (rightFacing) {
-                label.setIcon(imageIcons[frames[currentFrame[0]]]); // show frame
-            } else if (!rightFacing) {
-                label.setIcon(horizontalFlip(imageIcons[frames[currentFrame[0]]]));
+            Icon iconToShow = imageIcons[frames[currentFrame[0]]];
+
+            if (!rightFacing) {
+                iconToShow = horizontalFlip(iconToShow);
             }
+
+            label.setIcon(iconToShow);
 
             currentFrame[0]++;
 
             if (currentFrame[0] >= frames.length) {
-                ((Timer) e.getSource()).stop(); // stop animation
+                ((Timer) e.getSource()).stop();
+
                 if (rightFacing) {
-                    label.setIcon(imageIcons[frames[3]]); // show frame
-                } else if (!rightFacing) {
+                    label.setIcon(imageIcons[frames[3]]);
+                } else {
                     label.setIcon(horizontalFlip(imageIcons[frames[3]]));
                 }
             }
         });
 
-        // Gives us the opportunity to stop prematurely
         label.putClientProperty("animationTimer", timer);
-
         timer.setInitialDelay(0);
         timer.start();
-
     }
 
-    /** Flips the player icon horizontally. */
+    /**
+     * Flips an ImageIcon horizontally.
+     *
+     * @param icon The icon to flip
+     * @return A horizontally flipped ImageIcon
+     * @throws IllegalArgumentException if the icon is not an ImageIcon
+     */
     public static ImageIcon horizontalFlip(Icon icon) {
         if (!(icon instanceof ImageIcon)) {
             throw new IllegalArgumentException("Icon must be an ImageIcon");
@@ -201,23 +218,16 @@ public class Player {
         int w = icon.getIconWidth();
         int h = icon.getIconHeight();
 
-        java.awt.image.BufferedImage flipped = new java.awt.image.BufferedImage(
-            w, h, java.awt.image.BufferedImage.TYPE_INT_ARGB
-        );
-
+        BufferedImage flipped = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = flipped.createGraphics();
-        // Draw the image mirrored horizontally
         g.drawImage(img, 0, 0, w, h, w, 0, 0, h, null);
         g.dispose();
 
         return new ImageIcon(flipped);
     }
 
-
-
     /**
-     * Moves the player to the left by {@code STEP} pixels.
-     * Ensures the player does not move beyond the left edge of the screen.
+     * Moves the player left by the step size.
      */
     public void moveLeft() {
         x = Math.max(0, x - STEP);
@@ -225,7 +235,7 @@ public class Player {
     }
 
     /**
-     * Moves the player to the right by {@code STEP} pixels.
+     * Moves the player right by the step size.
      */
     public void moveRight() {
         x += STEP;
@@ -233,8 +243,7 @@ public class Player {
     }
 
     /**
-     * Moves the player upward by {@code STEP} pixels.
-     * Ensures the player does not move beyond the top edge of the screen.
+     * Moves the player up by the step size.
      */
     public void moveUp() {
         y = Math.max(0, y - STEP);
@@ -242,23 +251,19 @@ public class Player {
     }
 
     /**
-     * Moves the player downward by {@code STEP} pixels.
+     * Moves the player down by the step size.
      */
     public void moveDown() {
         y += STEP;
         updateLabel();
     }
 
-    /**
-     * Updates the visual position of the player's JLabel.
-     */
+    /** Updates the JLabel's position to match current x and y coordinates. */
     private void updateLabel() {
         label.setLocation(x, y);
     }
 
-    /**
-     * Resets the player’s position to the starting coordinates.
-     */
+    /** Resets the player's position to the starting coordinates. */
     public void resetPosition() {
         x = startX;
         y = startY;
@@ -266,18 +271,18 @@ public class Player {
     }
 
     /**
-     * Returns the player’s current x position.
+     * Returns the current X coordinate of the player.
      *
-     * @return the x coordinate of the player
+     * @return The X coordinate
      */
     public int getX() {
         return x;
     }
 
     /**
-     * Returns the player’s current y position.
+     * Returns the current Y coordinate of the player.
      *
-     * @return the y coordinate of the player
+     * @return The Y coordinate
      */
     public int getY() {
         return y;
@@ -286,30 +291,30 @@ public class Player {
     /**
      * Returns the JLabel representing the player.
      *
-     * @return the player’s JLabel
+     * @return The player's JLabel
      */
     public JLabel getLabel() {
         return label;
     }
 
     /**
-     * Returns the player’s image icon.
+     * Returns the default standing icon of the player.
      *
-     * @return the player’s ImageIcon
+     * @return The standing ImageIcon
      */
     public ImageIcon getIcon() {
         return icon;
     }
 
     /**
-     * Moves the player immediately to the specified coordinates.
+     * Moves the player directly to specified coordinates.
      *
-     * @param newX the x coordinate
-     * @param newY the y coordinate
+     * @param newX The new X coordinate
+     * @param newY The new Y coordinate
      */
     public void moveTo(int newX, int newY) {
-        this.x = newX;
-        this.y = newY;
+        x = newX;
+        y = newY;
         updateLabel();
     }
 }

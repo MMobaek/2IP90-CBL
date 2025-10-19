@@ -98,27 +98,43 @@ public class UILayout extends JFrame {
         snackstation.getLabel().setIcon(snackstation.getScaledIcon(snackWidth, snackHeight));
         snackstation.getLabel().setLocation(snackX, snackY);
 
+        // Print snackstation position
+        System.out.println("Snackstation position: (" + snackX + ", " + snackY + ")");
+
         // Player: set internal position and label to snackstation
-        player.resetPosition(); // reset to default start first
-        player.moveTo(snackX, snackY); // move internal x,y and label
+        player.resetPosition();
+        player.moveTo(snackX, snackY);
 
         // Desk
         int deskWidth = panelWidth / 8;
         int deskHeight = panelHeight / 4;
+        int deskX = panelWidth - 10 - deskWidth;
+        int deskY = panelHeight / 2 - deskHeight / 2;
         desk.getLabel().setSize(deskWidth, deskHeight);
         desk.getLabel().setIcon(desk.getScaledIcon(deskWidth, deskHeight));
-        desk.getLabel().setLocation(panelWidth - 10 - deskWidth, panelHeight / 2 - deskHeight / 2);
+        desk.getLabel().setLocation(deskX, deskY);
+
+        // Print desk position
+        System.out.println("Desk position: (" + deskX + ", " + deskY + ")");
 
         // Librarian
         int librarianWidth = panelWidth / 8;
         int librarianHeight = panelHeight / 4;
+        int librarianX = panelWidth / 2 - librarianWidth / 2;
+        int librarianY = 4 * panelHeight / 5 - librarianHeight / 2;
         librarian.getLabel().setSize(librarianWidth, librarianHeight);
         librarian.getLabel().setIcon(
-            librarian.getScaledIcon(librarian.getCurrentStateName(), 
-            librarianWidth, librarianHeight)
+            librarian.getScaledIcon(librarian.getCurrentStateName(), librarianWidth, librarianHeight)
         );
-        librarian.getLabel().setLocation(1 * panelWidth / 2 - librarianWidth / 2,
-                                        4 * panelHeight / 5 - librarianHeight / 2);
+        librarian.getLabel().setLocation(librarianX, librarianY);
+    }
+
+    public Desk getDesk() {
+        return desk;
+    }
+
+    public Snackstation getSnackstation() {
+        return snackstation;
     }
 
 

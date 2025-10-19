@@ -17,13 +17,17 @@ import javax.swing.SwingUtilities;
  *
  * 
  * Class overview:
- * {@code Main} — launches the game.</li>
- * {@code UILayout} — builds and displays the graphical user interface.</li>
- * {@code GameController} — handles keyboard input and timing logic.</li>
- * {@code Player} — manages the player’s movement and rendering.</li>
- * {@code Librarian} — controls the librarian’s attention states.</li>
- * 
- *
+ * {@code Main} — launches the game and shows the start menu.
+ * {@code UILayout} — builds and displays the main game window, positions objects, and handles 
+ * resizing.
+ * {@code GameController} — connects the UI, player, and librarian; handles keyboard and button 
+ * input; updates game logic.</li>
+ * {@code Player} — manages the player’s position, movement, and walking animations.
+ * {@code MovingPlayer} — handles keyboard controls for the player and triggers movement callbacks.
+ * {@code Librarian} — controls the librarian’s states (INATTENTIVE, TRANSITION, ATTENTIVE) and 
+ * updates the icon accordingly.
+ * {@code Desk} — represents a static desk object with a resizable image.
+ * {@code Snackstation} — represents a static snack station object with a resizable image.
  * 
  * Follows the Eindhoven University of Technology 2IP90 Java Coding Standard.
  * This ensures readable, consistent, and maintainable source code.
