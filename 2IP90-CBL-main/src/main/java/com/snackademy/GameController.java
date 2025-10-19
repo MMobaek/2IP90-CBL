@@ -1,10 +1,11 @@
 package snackademy;
 
 import java.awt.Rectangle;
+import javax.swing.SwingUtilities;
 
 /**
  * GameController connects the UILayout, Player, and Librarian.
- * It handles player movement, snack state, and updates the movable text when caught.
+ * It handles player movement, snack state, and shows a "caught screen" when the player is caught.
  * Movement is handled entirely via keyboard (WASD + arrows) using MovingPlayer.
  */
 public class GameController {
@@ -23,6 +24,9 @@ public class GameController {
     // Track whether the player was previously at snack station or desk
     private boolean wasAtSnackStation = false;
     private boolean wasAtDesk = false;
+
+    // Prevent multiple caught screens
+    private boolean isCaughtScreenVisible = false;
 
     /**
      * Constructs the GameController and initializes the game.
@@ -46,34 +50,17 @@ public class GameController {
         startGameLoop();
     }
 
-    /**
-     * Updates stored player position variables.
-     */
     private void updatePlayerPosition() {
         playerX = player.getX();
         playerY = player.getY();
     }
 
-    /**
-     * Gets the current X position of the player.
-     *
-     * @return X coordinate
-     */
-    public int getPlayerX() {
-        return playerX;
-    }
+    public int getPlayerX() { return playerX; }
+    public int getPlayerY() { return playerY; }
 
     /**
-     * Gets the current Y position of the player.
-     *
-     * @return Y coordinate
-     */
-    public int getPlayerY() {
-        return playerY;
-    }
-
-    /**
-     * Background thread that periodically updates the librarian's status.
+     * Background thread updating the librarian's state
+     * including INATTENTIVE → TRANSITION → ATTENTIVE.
      */
     private void startGameLoop() {
         Thread thread = new Thread(() -> {
@@ -88,14 +75,13 @@ public class GameController {
                 }
             }
         });
-
         thread.setDaemon(true);
         thread.start();
     }
 
     /**
-     * Handles player movement, snack station, desk interactions,
-     * and updates messages when caught by the librarian.
+     * Handles player movement, snack station and desk logic,
+     * and triggers caught screen after librarian transition → attentive.
      */
     private void handlePlayerMovement() {
         updatePlayerPosition();
@@ -104,9 +90,16 @@ public class GameController {
         Rectangle snackRect = ui.getSnackstation().getLabel().getBounds();
         Rectangle deskRect = ui.getDesk().getLabel().getBounds();
 
-        // Update movable text if the librarian is attentive
-        if (librarian.isAttentive()) {
-            ui.setMovableTextMessage("Oh no, you are caught!");
+        // Show caught screen only when librarian is ATTENTIVE
+        if (librarian.getCurrentStateName().equals("ATTENTIVE") && !isCaughtScreenVisible) {
+            isCaughtScreenVisible = true;
+            SwingUtilities.invokeLater(() -> {
+                CaughtScreen caughtScreen = new CaughtScreen(ui, () -> {
+                    resetGame();
+                    isCaughtScreenVisible = false;
+                });
+                caughtScreen.setVisible(true);
+            });
         }
 
         // Snack station logic
@@ -115,7 +108,7 @@ public class GameController {
                 System.out.println("Player is at the Snack Station!");
                 wasAtSnackStation = true;
             }
-            player.setHasSnack(true); // Pick up snack
+            player.setHasSnack(true);
         } else {
             wasAtSnackStation = false;
         }
@@ -126,13 +119,12 @@ public class GameController {
                 System.out.println("Player is at the Desk!");
                 wasAtDesk = true;
 
-                // Increment snack counter only if player was holding a snack
                 if (player.hasSnack()) {
                     snackTransfers++;
                     ui.updateSnackCounter(snackTransfers);
                 }
             }
-            player.setHasSnack(false); // Drop snack
+            player.setHasSnack(false);
         } else {
             wasAtDesk = false;
         }
@@ -140,5 +132,21 @@ public class GameController {
         // Animate player based on facing direction
         int direction = player.isRightFacing() ? 0 : 1;
         player.movingAnimation(direction);
+    }
+
+    /**
+     * Reset the game state when the player is caught.
+     */
+    private void resetGame() {
+        player.resetPosition();
+        int startX = ui.getSnackstation().getLabel().getX();
+        int startY = ui.getSnackstation().getLabel().getY();
+        player.moveTo(startX, startY);
+
+        snackTransfers = 0;
+        ui.updateSnackCounter(snackTransfers);
+
+        player.setHasSnack(false);
+        ui.setMovableTextMessage("Move with the letters AWSD or the arrows but do not get caught!");
     }
 }

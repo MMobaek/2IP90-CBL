@@ -1,29 +1,41 @@
 package snackademy;
 
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
+import java.awt.*;
 
 /**
- * Adds a start menu, where the user can choose between options.
+ * Shows the main menu before starting the Snackademy game.
  */
 public class StartMenuScreen extends JPanel {
-    /** Adds the main menu screen. */
-    public StartMenuScreen(JFrame parentFrame) {
-        setLayout(new GridBagLayout()); // center the button nicely
-        JButton playButton = new JButton("Start Game");
-        add(playButton);
 
-        playButton.addActionListener((ActionEvent e) -> {
-            parentFrame.getContentPane().removeAll();
-            UILayout ui = new UILayout();
-            parentFrame.getContentPane().add(ui);
-            new GameController(ui);
-            parentFrame.revalidate();
-            parentFrame.repaint();
-        });
+    private final JFrame parentFrame;
+
+    public StartMenuScreen(JFrame frame) {
+        this.parentFrame = frame;
+        setLayout(new BorderLayout());
+
+        // Title
+        JLabel title = new JLabel("Snackademy");
+        title.setFont(new Font("Arial", Font.BOLD, 36));
+        title.setHorizontalAlignment(SwingConstants.CENTER);
+        add(title, BorderLayout.CENTER);
+
+        // Start button
+        JButton startButton = new JButton("Start Game");
+        startButton.setFont(new Font("Arial", Font.BOLD, 24));
+        startButton.addActionListener(e -> startGame());
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(startButton);
+        add(buttonPanel, BorderLayout.SOUTH);
     }
-    
+
+    /** Start the game when the button is clicked */
+    private void startGame() {
+        // Close the start menu frame
+        parentFrame.dispose();
+
+        // Launch game UI
+        UILayout ui = new UILayout();
+        new GameController(ui);
+    }
 }
