@@ -7,7 +7,8 @@ import javax.swing.*;
 
 /**
  * UILayout sets up the main game window for Snackademy.
- * It contains the player, librarian, desk, snack station, movable text, and buttons.
+ * It contains the player, librarian, desk, snack station, and movable text.
+ * All movement is handled via keyboard (WASD + arrows).
  */
 public class UILayout extends JFrame {
 
@@ -16,12 +17,11 @@ public class UILayout extends JFrame {
     private final Desk desk;
     private final Snackstation snackstation;
     private final JLabel movableText;
-    private final JButton leftArrow;
-    private final JButton rightArrow;
     private final GamePanel gamePanel;
     private final JLabel snackCounterLabel;
 
     private static final int TEXT_STEP = 10;
+    private static final int LABEL_HEIGHT = 40;
 
     /** Constructs the UI layout for the Snackademy game. */
     public UILayout() {
@@ -55,18 +55,6 @@ public class UILayout extends JFrame {
         gamePanel.add(movableText);
         gamePanel.add(snackCounterLabel);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        leftArrow = new JButton("<-");
-        rightArrow = new JButton("->");
-        leftArrow.setFocusable(false);
-        rightArrow.setFocusable(false);
-        buttonPanel.add(leftArrow);
-        buttonPanel.add(rightArrow);
-        add(buttonPanel, BorderLayout.SOUTH);
-
-        leftArrow.addActionListener(e -> moveText(-TEXT_STEP));
-        rightArrow.addActionListener(e -> moveText(TEXT_STEP));
-
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -78,44 +66,32 @@ public class UILayout extends JFrame {
         setVisible(true);
     }
 
-    /**
-     * Applies consistent styling for counter and movable text.
-     *
-     * @param label JLabel to style
-     */
-    
+    /** Styles the movable text and snack counter labels. */
     private void styleTextLabel(JLabel label) {
         label.setFont(new Font("Arial", Font.BOLD, 20));
         label.setForeground(Color.YELLOW);
         label.setOpaque(true);
         label.setBackground(new Color(139, 0, 0)); // dark red
         label.setBorder(BorderFactory.createLineBorder(new Color(204, 204, 0), 3)); // dark yellow outline
-        label.setHorizontalAlignment(SwingConstants.CENTER); // center text horizontally
-        label.setVerticalAlignment(SwingConstants.CENTER);   // center text vertically
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        label.setVerticalAlignment(SwingConstants.CENTER);
     }
 
-    
-
-    /**
-     * Moves the movable text horizontally by dx pixels.
-     *
-     * @param dx distance to move
-     */
-    private void moveText(int dx) {
-        int newX = movableText.getX() + dx;
-        newX = Math.max(0, Math.min(newX, gamePanel.getWidth() - movableText.getWidth()));
-        movableText.setLocation(newX, movableText.getY());
-    }
-
-    /**
-     * Updates the snack transfer counter displayed on the UI.
-     *
-     * @param count the number of snacks delivered
-     */
+    /** Updates the snack transfer counter displayed on the UI. */
     public void updateSnackCounter(int count) {
         SwingUtilities.invokeLater(() -> snackCounterLabel.setText("Snacks delivered: " + count));
     }
 
+    /** Updates the movable text displayed at the top of the game screen. */
+    public void setMovableTextMessage(String message) {
+        SwingUtilities.invokeLater(() -> {
+            movableText.setText(message);
+            movableText.revalidate();
+            movableText.repaint();
+        });
+    }
+
+    /** Positions all game objects. */
     private void positionObjects() {
         int panelWidth = gamePanel.getWidth();
         int panelHeight = gamePanel.getHeight();
@@ -129,7 +105,6 @@ public class UILayout extends JFrame {
         snackstation.getLabel().setIcon(snackstation.getScaledIcon(snackWidth, snackHeight));
         snackstation.getLabel().setLocation(snackX, snackY);
 
-        // Player: set internal position and label to snackstation
         player.resetPosition();
         player.moveTo(snackX, snackY);
 
@@ -153,13 +128,12 @@ public class UILayout extends JFrame {
         );
         librarian.getLabel().setLocation(librarianX, librarianY);
 
-        // Movable text
-        movableText.setBounds(50, 20, 1200, 40);
+        // Movable text (top-left)
+        movableText.setBounds(50, 20, 1200, LABEL_HEIGHT);
 
-        // Snack counter on top-right
+        // Snack counter (top-right)
         int counterWidth = 250;
-        int counterHeight = 40;
-        snackCounterLabel.setBounds(panelWidth - counterWidth - 10, 10, counterWidth, counterHeight);
+        snackCounterLabel.setBounds(panelWidth - counterWidth - 10, 20, counterWidth, LABEL_HEIGHT);
     }
 
     public Desk getDesk() {
@@ -178,29 +152,8 @@ public class UILayout extends JFrame {
         return librarian;
     }
 
-    public JButton getLeftArrow() {
-        return leftArrow;
-    }
-
-    public JButton getRightArrow() {
-        return rightArrow;
-    }
-
     public JComponent getGamePanel() {
         return gamePanel;
-    }
-
-    /**
-     * Updates the movable text displayed at the top of the game screen.
-     *
-     * @param message new message text
-     */
-    public void setMovableTextMessage(String message) {
-        SwingUtilities.invokeLater(() -> {
-            movableText.setText(message);
-            movableText.revalidate();
-            movableText.repaint();
-        });
     }
 
     /** Custom panel to hold all game elements. */

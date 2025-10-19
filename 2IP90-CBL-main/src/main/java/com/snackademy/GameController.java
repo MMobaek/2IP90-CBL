@@ -1,22 +1,20 @@
 package snackademy;
 
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * GameController connects the UILayout, Player, and Librarian.
  * It handles player movement, snack state, and updates the movable text when caught.
+ * Movement is handled entirely via keyboard (WASD + arrows) using MovingPlayer.
  */
-public class GameController implements ActionListener {
+public class GameController {
 
     private final UILayout ui; // The game's user interface
     private final Player player; // The player object
     private final Librarian librarian; // The librarian object
     private final MovingPlayer movingPlayer; // Handles smooth player movement
 
-    private int snackTransfers = 0; // count of snacks delivered
-
+    private int snackTransfers = 0; // Number of snacks delivered
 
     // Store player position
     private int playerX;
@@ -39,59 +37,12 @@ public class GameController implements ActionListener {
         // Initialize player position
         updatePlayerPosition();
 
-        // Add action listeners to arrow buttons
-        ui.getLeftArrow().addActionListener(this);
-        ui.getRightArrow().addActionListener(this);
-
-        // Initialize MovingPlayer for smooth animations
+        // Initialize MovingPlayer for smooth keyboard-controlled movement
         this.movingPlayer = new MovingPlayer(this.player, ui.getGamePanel());
 
-        movingPlayer.setOnMoveCallback(() -> {
-            updatePlayerPosition();
+        movingPlayer.setOnMoveCallback(this::handlePlayerMovement);
 
-            Rectangle playerRect = player.getLabel().getBounds();
-            Rectangle snackRect = ui.getSnackstation().getLabel().getBounds();
-            Rectangle deskRect = ui.getDesk().getLabel().getBounds();
-
-            // Update movable text if the librarian is attentive
-            if (librarian.isAttentive()) {
-                ui.setMovableTextMessage("Oh no, you are caught!");
-            }
-
-            // Snack station logic
-            if (playerRect.intersects(snackRect)) {
-                if (!wasAtSnackStation) {
-                    System.out.println("Player is at the Snack Station!");
-                    wasAtSnackStation = true;
-                }
-                player.setHasSnack(true); // Pick up snack
-            } else {
-                wasAtSnackStation = false;
-            }
-
-            // Desk logic
-            if (playerRect.intersects(deskRect)) {
-                if (!wasAtDesk) {
-                    System.out.println("Player is at the Desk!");
-                    wasAtDesk = true;
-
-                    // Only increment if player was holding a snack
-                    if (player.hasSnack()) {
-                        snackTransfers++;
-                        ui.updateSnackCounter(snackTransfers); // update the label
-                    }
-                }
-                player.setHasSnack(false); // drop snack
-            } else {
-                wasAtDesk = false;
-            }
-
-
-            // Animate player based on direction
-            int direction = player.isRightFacing() ? 0 : 1;
-            player.movingAnimation(direction);
-        });
-
+        // Start background game loop for librarian updates
         startGameLoop();
     }
 
@@ -122,7 +73,7 @@ public class GameController implements ActionListener {
     }
 
     /**
-     * Starts a background thread that periodically updates the librarian's status.
+     * Background thread that periodically updates the librarian's status.
      */
     private void startGameLoop() {
         Thread thread = new Thread(() -> {
@@ -143,42 +94,51 @@ public class GameController implements ActionListener {
     }
 
     /**
-     * Handles arrow button clicks to move the player.
-     *
-     * @param e The ActionEvent triggered by a button click
+     * Handles player movement, snack station, desk interactions,
+     * and updates messages when caught by the librarian.
      */
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        Object source = e.getSource();
+    private void handlePlayerMovement() {
+        updatePlayerPosition();
 
-        if (source == ui.getLeftArrow()) {
-            movePlayerLeft();
-        } else if (source == ui.getRightArrow()) {
-            movePlayerRight();
-        }
-    }
+        Rectangle playerRect = player.getLabel().getBounds();
+        Rectangle snackRect = ui.getSnackstation().getLabel().getBounds();
+        Rectangle deskRect = ui.getDesk().getLabel().getBounds();
 
-    /**
-     * Moves the player to the left and updates facing direction.
-     */
-    private void movePlayerLeft() {
-        player.moveLeft();
-        player.setRightFacing(false);
-
+        // Update movable text if the librarian is attentive
         if (librarian.isAttentive()) {
-            ui.setMovableTextMessage("You are caught!");
+            ui.setMovableTextMessage("Oh no, you are caught!");
         }
-    }
 
-    /**
-     * Moves the player to the right and updates facing direction.
-     */
-    private void movePlayerRight() {
-        player.moveRight();
-        player.setRightFacing(true);
-
-        if (librarian.isAttentive()) {
-            ui.setMovableTextMessage("You are caught!");
+        // Snack station logic
+        if (playerRect.intersects(snackRect)) {
+            if (!wasAtSnackStation) {
+                System.out.println("Player is at the Snack Station!");
+                wasAtSnackStation = true;
+            }
+            player.setHasSnack(true); // Pick up snack
+        } else {
+            wasAtSnackStation = false;
         }
+
+        // Desk logic
+        if (playerRect.intersects(deskRect)) {
+            if (!wasAtDesk) {
+                System.out.println("Player is at the Desk!");
+                wasAtDesk = true;
+
+                // Increment snack counter only if player was holding a snack
+                if (player.hasSnack()) {
+                    snackTransfers++;
+                    ui.updateSnackCounter(snackTransfers);
+                }
+            }
+            player.setHasSnack(false); // Drop snack
+        } else {
+            wasAtDesk = false;
+        }
+
+        // Animate player based on facing direction
+        int direction = player.isRightFacing() ? 0 : 1;
+        player.movingAnimation(direction);
     }
 }
