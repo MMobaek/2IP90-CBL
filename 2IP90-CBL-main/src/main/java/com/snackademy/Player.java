@@ -27,7 +27,7 @@ public class Player {
     private Icon[] imageIcons;
 
     private static final int SIZE = 100; // Player image size in pixels
-    private static final int STEP = 10;  // Movement step size in pixels
+    private static final int STEP = 7;  // Movement step size in pixels
 
     private int[] frames = {3, 5, 4, 5}; // Current animation frames
 

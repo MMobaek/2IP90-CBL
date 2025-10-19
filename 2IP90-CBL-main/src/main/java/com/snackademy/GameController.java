@@ -15,6 +15,9 @@ public class GameController implements ActionListener {
     private final Librarian librarian; // The librarian object
     private final MovingPlayer movingPlayer; // Handles smooth player movement
 
+    private int snackTransfers = 0; // count of snacks delivered
+
+
     // Store player position
     private int playerX;
     private int playerY;
@@ -71,11 +74,18 @@ public class GameController implements ActionListener {
                 if (!wasAtDesk) {
                     System.out.println("Player is at the Desk!");
                     wasAtDesk = true;
+
+                    // Only increment if player was holding a snack
+                    if (player.hasSnack()) {
+                        snackTransfers++;
+                        ui.updateSnackCounter(snackTransfers); // update the label
+                    }
                 }
-                player.setHasSnack(false); // Drop snack
+                player.setHasSnack(false); // drop snack
             } else {
                 wasAtDesk = false;
             }
+
 
             // Animate player based on direction
             int direction = player.isRightFacing() ? 0 : 1;
@@ -120,7 +130,7 @@ public class GameController implements ActionListener {
                 librarian.updateStatus();
 
                 try {
-                    Thread.sleep(100L);
+                    Thread.sleep(20L);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     return;

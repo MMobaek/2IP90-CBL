@@ -19,6 +19,8 @@ public class UILayout extends JFrame {
     private final JButton leftArrow;
     private final JButton rightArrow;
     private final GamePanel gamePanel;
+    private final JLabel snackCounterLabel;
+
     private static final int TEXT_STEP = 10;
 
     /** Constructs the UI layout for the Snackademy game. */
@@ -36,9 +38,10 @@ public class UILayout extends JFrame {
         movableText = new JLabel(
             "Move with the letters AWSD or the arrows but do not get caught!"
         );
-        movableText.setFont(new Font("Arial", Font.BOLD, 24));
-        movableText.setForeground(Color.WHITE);
-        movableText.setBounds(50, 20, 1200, 40);
+        styleTextLabel(movableText);
+
+        snackCounterLabel = new JLabel("Snacks delivered: 0");
+        styleTextLabel(snackCounterLabel);
 
         gamePanel = new GamePanel();
         gamePanel.setLayout(null);
@@ -50,6 +53,7 @@ public class UILayout extends JFrame {
         gamePanel.add(desk.getLabel());
         gamePanel.add(snackstation.getLabel());
         gamePanel.add(movableText);
+        gamePanel.add(snackCounterLabel);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         leftArrow = new JButton("<-");
@@ -75,6 +79,24 @@ public class UILayout extends JFrame {
     }
 
     /**
+     * Applies consistent styling for counter and movable text.
+     *
+     * @param label JLabel to style
+     */
+    
+    private void styleTextLabel(JLabel label) {
+        label.setFont(new Font("Arial", Font.BOLD, 20));
+        label.setForeground(Color.YELLOW);
+        label.setOpaque(true);
+        label.setBackground(new Color(139, 0, 0)); // dark red
+        label.setBorder(BorderFactory.createLineBorder(new Color(204, 204, 0), 3)); // dark yellow outline
+        label.setHorizontalAlignment(SwingConstants.CENTER); // center text horizontally
+        label.setVerticalAlignment(SwingConstants.CENTER);   // center text vertically
+    }
+
+    
+
+    /**
      * Moves the movable text horizontally by dx pixels.
      *
      * @param dx distance to move
@@ -83,6 +105,15 @@ public class UILayout extends JFrame {
         int newX = movableText.getX() + dx;
         newX = Math.max(0, Math.min(newX, gamePanel.getWidth() - movableText.getWidth()));
         movableText.setLocation(newX, movableText.getY());
+    }
+
+    /**
+     * Updates the snack transfer counter displayed on the UI.
+     *
+     * @param count the number of snacks delivered
+     */
+    public void updateSnackCounter(int count) {
+        SwingUtilities.invokeLater(() -> snackCounterLabel.setText("Snacks delivered: " + count));
     }
 
     private void positionObjects() {
@@ -98,9 +129,6 @@ public class UILayout extends JFrame {
         snackstation.getLabel().setIcon(snackstation.getScaledIcon(snackWidth, snackHeight));
         snackstation.getLabel().setLocation(snackX, snackY);
 
-        // Print snackstation position
-        System.out.println("Snackstation position: (" + snackX + ", " + snackY + ")");
-
         // Player: set internal position and label to snackstation
         player.resetPosition();
         player.moveTo(snackX, snackY);
@@ -114,9 +142,6 @@ public class UILayout extends JFrame {
         desk.getLabel().setIcon(desk.getScaledIcon(deskWidth, deskHeight));
         desk.getLabel().setLocation(deskX, deskY);
 
-        // Print desk position
-        System.out.println("Desk position: (" + deskX + ", " + deskY + ")");
-
         // Librarian
         int librarianWidth = panelWidth / 8;
         int librarianHeight = panelHeight / 4;
@@ -127,6 +152,14 @@ public class UILayout extends JFrame {
             librarian.getScaledIcon(librarian.getCurrentStateName(), librarianWidth, librarianHeight)
         );
         librarian.getLabel().setLocation(librarianX, librarianY);
+
+        // Movable text
+        movableText.setBounds(50, 20, 1200, 40);
+
+        // Snack counter on top-right
+        int counterWidth = 250;
+        int counterHeight = 40;
+        snackCounterLabel.setBounds(panelWidth - counterWidth - 10, 10, counterWidth, counterHeight);
     }
 
     public Desk getDesk() {
@@ -137,25 +170,24 @@ public class UILayout extends JFrame {
         return snackstation;
     }
 
-
-    public Player getPlayer() { 
-        return player; 
+    public Player getPlayer() {
+        return player;
     }
 
-    public Librarian getLibrarian() { 
-        return librarian; 
+    public Librarian getLibrarian() {
+        return librarian;
     }
 
     public JButton getLeftArrow() {
-        return leftArrow; 
+        return leftArrow;
     }
 
-    public JButton getRightArrow() { 
-        return rightArrow; 
+    public JButton getRightArrow() {
+        return rightArrow;
     }
 
-    public JComponent getGamePanel() { 
-        return gamePanel; 
+    public JComponent getGamePanel() {
+        return gamePanel;
     }
 
     /**
@@ -173,8 +205,8 @@ public class UILayout extends JFrame {
 
     /** Custom panel to hold all game elements. */
     private class GamePanel extends JPanel {
-        
-        private Image backgroundLibrary;
+
+        private final Image backgroundLibrary;
 
         public GamePanel() {
             backgroundLibrary = new ImageIcon(getClass().getResource(
@@ -184,7 +216,6 @@ public class UILayout extends JFrame {
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
-            // background image
             g.drawImage(backgroundLibrary, 0, 0, getWidth(), getHeight(), this);
         }
     }
