@@ -1,53 +1,46 @@
 package snackademy;
 
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.event.*;
 import javax.swing.*;
 
 /**
- * UILayout sets up the main game window for Snackademy.
- * It contains the player, librarian, desk, snack station, and movable text.
- * All movement is handled via keyboard (WASD + arrows).
+ * UILayout sets up the main game panel for Snackademy.
+ * Contains player, librarian, desk, snackstation, movable text, and snack counter.
  */
-public class UILayout extends JFrame {
+public class UILayout extends JPanel {
 
     private final Player player;
     private final Librarian librarian;
     private final Desk desk;
     private final Snackstation snackstation;
     private final JLabel movableText;
-    private final GamePanel gamePanel;
     private final JLabel snackCounterLabel;
+    private final GamePanel gamePanel;
+    private final JButton backButton;
 
-    private static final int TEXT_STEP = 10;
     private static final int LABEL_HEIGHT = 40;
 
-    /** Constructs the UI layout for the Snackademy game. */
+    /**
+     * Constructs the UILayout and initializes all game objects and UI elements.
+     */
     public UILayout() {
-        setTitle("Snackademy");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 400);
         setLayout(new BorderLayout());
+        setBackground(Color.DARK_GRAY);
 
         player = new Player();
         librarian = new Librarian(0, 0);
         desk = new Desk(0, 0);
         snackstation = new Snackstation(0, 0);
 
-        movableText = new JLabel(
-            "Move with the letters AWSD or the arrows but do not get caught!"
-        );
-        styleTextLabel(movableText);
+        movableText = new JLabel("Move with AWSD or arrows, avoid being caught!");
+        styleLabel(movableText);
 
         snackCounterLabel = new JLabel("Snacks delivered: 0");
-        styleTextLabel(snackCounterLabel);
+        styleLabel(snackCounterLabel);
 
         gamePanel = new GamePanel();
         gamePanel.setLayout(null);
-        setExtendedState(Frame.MAXIMIZED_BOTH);
-        add(gamePanel, BorderLayout.CENTER);
-
         gamePanel.add(player.getLabel());
         gamePanel.add(librarian.getLabel());
         gamePanel.add(desk.getLabel());
@@ -55,121 +48,194 @@ public class UILayout extends JFrame {
         gamePanel.add(movableText);
         gamePanel.add(snackCounterLabel);
 
+        add(gamePanel, BorderLayout.CENTER);
+
+        backButton = createBackButton();
+        gamePanel.add(backButton);
+
+        gamePanel.setFocusable(true);
+        gamePanel.requestFocusInWindow();
+
         addComponentListener(new ComponentAdapter() {
             @Override
-            public void componentResized(ComponentEvent e) {
+            public void componentResized(ComponentEvent ignored) {
                 positionObjects();
             }
         });
 
         SwingUtilities.invokeLater(this::positionObjects);
-        setVisible(true);
     }
 
-    /** Styles the movable text and snack counter labels. */
-    private void styleTextLabel(JLabel label) {
+    /**
+     * Styles a JLabel with red background, yellow text, and border.
+     *
+     * @param label the JLabel to style
+     */
+    private void styleLabel(JLabel label) {
         label.setFont(new Font("Arial", Font.BOLD, 20));
         label.setForeground(Color.YELLOW);
         label.setOpaque(true);
-        label.setBackground(new Color(139, 0, 0)); // dark red
-        label.setBorder(BorderFactory.createLineBorder(new Color(204, 204, 0), 3)); // dark yellow outline
+        label.setBackground(new Color(200, 0, 0));
+        label.setBorder(BorderFactory.createLineBorder(new Color(255, 204, 0), 3));
         label.setHorizontalAlignment(SwingConstants.CENTER);
         label.setVerticalAlignment(SwingConstants.CENTER);
     }
 
-    /** Updates the snack transfer counter displayed on the UI. */
+    /**
+     * Creates a styled "Back to Menu" button.
+     *
+     * @return the JButton configured as a back button
+     */
+    private JButton createBackButton() {
+        JButton back = new JButton("Back to Menu");
+        back.setFont(new Font("Arial", Font.BOLD, 16));
+        back.setBackground(new Color(200, 0, 0));
+        back.setForeground(Color.YELLOW);
+        back.setFocusPainted(false);
+        back.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 3));
+
+        back.addActionListener(this::backToMenu);
+
+        return back;
+    }
+
+    /**
+     * Updates the snack counter label.
+     *
+     * @param count the number of snacks delivered
+     */
     public void updateSnackCounter(int count) {
-        SwingUtilities.invokeLater(() -> snackCounterLabel.setText("Snacks delivered: " + count));
+        SwingUtilities.invokeLater(() ->
+            snackCounterLabel.setText("Snacks delivered: " + count)
+        );
     }
 
-    /** Updates the movable text displayed at the top of the game screen. */
+    /**
+     * Updates the movable text label.
+     *
+     * @param message the message to display
+     */
     public void setMovableTextMessage(String message) {
-        SwingUtilities.invokeLater(() -> {
-            movableText.setText(message);
-            movableText.revalidate();
-            movableText.repaint();
-        });
+        SwingUtilities.invokeLater(() -> movableText.setText(message));
     }
 
-    /** Positions all game objects. */
+    /**
+     * Dynamically positions all game objects based on panel size.
+     */
     private void positionObjects() {
-        int panelWidth = gamePanel.getWidth();
-        int panelHeight = gamePanel.getHeight();
+        int w = gamePanel.getWidth();
+        int h = gamePanel.getHeight();
 
-        // Snackstation
-        int snackWidth = panelWidth / 8;
-        int snackHeight = panelHeight / 4;
+        int snackW = w / 8;
+        int snackH = h / 4;
         int snackX = 10;
-        int snackY = panelHeight / 2 - snackHeight / 2;
-        snackstation.getLabel().setSize(snackWidth, snackHeight);
-        snackstation.getLabel().setIcon(snackstation.getScaledIcon(snackWidth, snackHeight));
-        snackstation.getLabel().setLocation(snackX, snackY);
+        int snackY = h / 2 - snackH / 2;
+        snackstation.getLabel().setBounds(snackX, snackY, snackW, snackH);
+        snackstation.getLabel().setIcon(snackstation.getScaledIcon(snackW, snackH));
 
         player.resetPosition();
         player.moveTo(snackX, snackY);
 
-        // Desk
-        int deskWidth = panelWidth / 8;
-        int deskHeight = panelHeight / 4;
-        int deskX = panelWidth - 10 - deskWidth;
-        int deskY = panelHeight / 2 - deskHeight / 2;
-        desk.getLabel().setSize(deskWidth, deskHeight);
-        desk.getLabel().setIcon(desk.getScaledIcon(deskWidth, deskHeight));
-        desk.getLabel().setLocation(deskX, deskY);
+        int deskW = w / 8;
+        int deskH = h / 4;
+        int deskX = w - deskW - 10;
+        int deskY = h / 2 - deskH / 2;
+        desk.getLabel().setBounds(deskX, deskY, deskW, deskH);
+        desk.getLabel().setIcon(desk.getScaledIcon(deskW, deskH));
 
-        // Librarian
-        int librarianWidth = panelWidth / 8;
-        int librarianHeight = panelHeight / 4;
-        int librarianX = panelWidth / 2 - librarianWidth / 2;
-        int librarianY = 4 * panelHeight / 5 - librarianHeight / 2;
-        librarian.getLabel().setSize(librarianWidth, librarianHeight);
+        int libW = w / 8;
+        int libH = h / 4;
+        int libX = w / 2 - libW / 2;
+        int libY = 4 * h / 5 - libH / 2;
+        librarian.getLabel().setBounds(libX, libY, libW, libH);
         librarian.getLabel().setIcon(
-            librarian.getScaledIcon(librarian.getCurrentStateName(), librarianWidth, librarianHeight)
+            librarian.getScaledIcon(librarian.getCurrentStateName(), libW, libH)
         );
-        librarian.getLabel().setLocation(librarianX, librarianY);
 
-        // Movable text (top-left)
         movableText.setBounds(50, 20, 1200, LABEL_HEIGHT);
+        snackCounterLabel.setBounds(w - 260, 20, 250, LABEL_HEIGHT);
 
-        // Snack counter (top-right)
-        int counterWidth = 250;
-        snackCounterLabel.setBounds(panelWidth - counterWidth - 10, 20, counterWidth, LABEL_HEIGHT);
+        int btnW = 180;
+        int btnH = 40;
+        backButton.setBounds(20, h - btnH - 20, btnW, btnH);
     }
 
+    /**
+     * Returns the desk object.
+     *
+     * @return desk
+     */
     public Desk getDesk() {
         return desk;
     }
 
+    /**
+     * Returns the snackstation object.
+     *
+     * @return snackstation
+     */
     public Snackstation getSnackstation() {
         return snackstation;
     }
 
+    /**
+     * Returns the player object.
+     *
+     * @return player
+     */
     public Player getPlayer() {
         return player;
     }
 
+    /**
+     * Returns the librarian object.
+     *
+     * @return librarian
+     */
     public Librarian getLibrarian() {
         return librarian;
     }
 
+    /**
+     * Returns the main game panel.
+     *
+     * @return gamePanel
+     */
     public JComponent getGamePanel() {
         return gamePanel;
     }
 
-    /** Custom panel to hold all game elements. */
+    /**
+     * Returns to the main menu screen.
+     *
+     * @param ignored unused ActionEvent
+     */
+    private void backToMenu(ActionEvent ignored) {
+        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        if (frame != null) {
+            frame.getContentPane().removeAll();
+            frame.getContentPane().add(new StartMenuScreen(frame));
+            frame.revalidate();
+            frame.repaint();
+        }
+    }
+
+    /**
+     * Custom JPanel with background image.
+     */
     private class GamePanel extends JPanel {
 
-        private final Image backgroundLibrary;
+        private final Image background;
 
         public GamePanel() {
-            backgroundLibrary = new ImageIcon(getClass().getResource(
-                "/snackademy/resources/Background.png")).getImage();
+            background = new ImageIcon(getClass()
+                .getResource("/snackademy/resources/Background.png")).getImage();
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
-            g.drawImage(backgroundLibrary, 0, 0, getWidth(), getHeight(), this);
+            g.drawImage(background, 0, 0, getWidth(), getHeight(), this);
         }
     }
 }

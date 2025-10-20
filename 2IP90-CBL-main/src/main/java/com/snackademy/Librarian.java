@@ -28,6 +28,7 @@ public class Librarian {
     private int secondMilestone;
     private int thirdMilestone;
 
+    /** The possible attention states of the librarian. */
     private enum State {
         INATTENTIVE,
         TRANSITION,
@@ -89,27 +90,39 @@ public class Librarian {
     public void updateStatus() {
         long elapsed = System.currentTimeMillis() - startTime;
 
-        switch (currentState) {
-            case INATTENTIVE: {
-                if (elapsed >= firstMilestone) {
-                    transitionTo(State.TRANSITION, transitionIcon);
-                }
-                break;
-            }
-            case TRANSITION: {
-                if (elapsed >= secondMilestone) {
-                    transitionTo(State.ATTENTIVE, attentiveIcon);
-                }
-                break;
-            }
-            case ATTENTIVE: {
-                if (elapsed >= thirdMilestone) {
-                    resetCycle();
-                }
-                break;
-            }
-            default:
-                throw new IllegalStateException("Unknown state: " + currentState);
+        if (currentState == State.INATTENTIVE) {
+            checkInattentive(elapsed);
+            return;
+        }
+
+        if (currentState == State.TRANSITION) {
+            checkTransition(elapsed);
+            return;
+        }
+
+        if (currentState == State.ATTENTIVE) {
+            checkAttentive(elapsed);
+        }
+    }
+
+    /** Handles timing logic when librarian is INATTENTIVE. */
+    private void checkInattentive(long elapsed) {
+        if (elapsed >= firstMilestone) {
+            transitionTo(State.TRANSITION, transitionIcon);
+        }
+    }
+
+    /** Handles timing logic when librarian is TRANSITION. */
+    private void checkTransition(long elapsed) {
+        if (elapsed >= secondMilestone) {
+            transitionTo(State.ATTENTIVE, attentiveIcon);
+        }
+    }
+
+    /** Handles timing logic when librarian is ATTENTIVE. */
+    private void checkAttentive(long elapsed) {
+        if (elapsed >= thirdMilestone) {
+            resetCycle();
         }
     }
 
@@ -165,11 +178,20 @@ public class Librarian {
     public ImageIcon getScaledIcon(String state, int width, int height) {
         ImageIcon baseIcon;
         switch (state) {
-            case "INATTENTIVE": baseIcon = inattentiveIcon; break;
-            case "TRANSITION": baseIcon = transitionIcon; break;
-            case "ATTENTIVE": baseIcon = attentiveIcon; break;
-            default: baseIcon = currentIcon;
+            case "INATTENTIVE":
+                baseIcon = inattentiveIcon;
+                break;
+            case "TRANSITION":
+                baseIcon = transitionIcon;
+                break;
+            case "ATTENTIVE":
+                baseIcon = attentiveIcon;
+                break;
+            default:
+                baseIcon = currentIcon;
+                break;
         }
+
         Image img = baseIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
         return new ImageIcon(img);
     }
