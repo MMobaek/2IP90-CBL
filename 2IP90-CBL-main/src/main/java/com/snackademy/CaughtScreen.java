@@ -4,57 +4,66 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- * Full-screen overlay using an image for "YOU ARE CAUGHT!"
- * with a Retry button.
- * 
- * [THIS DOES NOT WORK]
+ * The screen that appears when the player is caught by the librarian.
+ * Displays a "You are caught!" message and a button to reset the game.
  */
-public class CaughtScreen {
+public class CaughtScreen extends JDialog {
 
-    private final JPanel overlayPanel;
+    // Color and font constants
+    private static final Color BACKGROUND_COLOR = new Color(255, 220, 100); // Snackademy yellow
+    private static final Color BUTTON_COLOR = new Color(200, 0, 0); // Red
+    private static final Font TITLE_FONT = new Font("Arial", Font.BOLD, 24);
+    private static final Font BUTTON_FONT = new Font("Arial", Font.BOLD, 16);
 
     /**
-     * @param parent  The main JFrame to cover
-     * @param onRetry Callback to execute when retry is pressed
+     * Creates a caught screen overlay.
+     *
+     * @param ui the current UILayout of the game
+     * @param onReset callback to run when the player presses "Try Again"
      */
-    public CaughtScreen(JFrame parent, Runnable onRetry) {
-        // Load the image icon
-        ImageIcon icon = new ImageIcon(getClass().getResource(
-                "/snackademy/resources/caught_screen.jpg"));
+    public CaughtScreen(UILayout ui, Runnable onReset) {
+        super(
+            SwingUtilities.getWindowAncestor(ui),
+            "You Are Caught!",
+            ModalityType.APPLICATION_MODAL
+        );
 
-        overlayPanel = new JPanel();
-        overlayPanel.setLayout(new GridBagLayout());
-        overlayPanel.setBounds(0, 0, parent.getWidth(), parent.getHeight());
+        setLayout(new BorderLayout());
+        setSize(400, 200);
+        setLocationRelativeTo(ui);
+        getContentPane().setBackground(BACKGROUND_COLOR);
 
-        // JLabel that holds the full-screen image
-        JLabel imageLabel = new JLabel(icon);
-        imageLabel.setLayout(new GridBagLayout()); // so button can be added on top
-        overlayPanel.add(imageLabel, new GridBagConstraints());
+        JLabel messageLabel = new JLabel("YOU ARE CAUGHT!", SwingConstants.CENTER);
+        messageLabel.setFont(TITLE_FONT);
+        messageLabel.setForeground(Color.RED);
+        add(messageLabel, BorderLayout.CENTER);
 
-        // Retry button
-        JButton retryButton = new JButton("Retry");
-        retryButton.setFont(new Font("Arial", Font.BOLD, 32));
-        retryButton.addActionListener(e -> removeOverlay(parent, onRetry));
+        JButton tryAgainButton = new JButton("Try Again");
+        tryAgainButton.setFont(BUTTON_FONT);
+        tryAgainButton.setBackground(BUTTON_COLOR);
+        tryAgainButton.setForeground(Color.WHITE);
+        tryAgainButton.setFocusPainted(false);
+        tryAgainButton.setBorder(
+            BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        );
 
-        // Position button in the center of the image
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.CENTER;
-        imageLabel.add(retryButton, gbc);
+        tryAgainButton.addActionListener(action -> handleTryAgain(onReset));
 
-        // Add overlay to the top layer
-        parent.getLayeredPane().add(overlayPanel, JLayeredPane.MODAL_LAYER);
-        overlayPanel.revalidate();
-        overlayPanel.repaint();
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(BACKGROUND_COLOR);
+        buttonPanel.add(tryAgainButton);
+        add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    /** Removes overlay and calls retry callback. */
-    private void removeOverlay(JFrame parent, Runnable onRetry) {
-        parent.getLayeredPane().remove(overlayPanel);
-        parent.getLayeredPane().repaint();
-        if (onRetry != null) {
-            onRetry.run();
+    /**
+     * Handles the reset action when "Try Again" is pressed.
+     *
+     * @param onReset callback to execute the reset logic
+     */
+    private void handleTryAgain(Runnable onReset) {
+        dispose();
+        if (onReset != null) {
+            onReset.run();
         }
     }
 }

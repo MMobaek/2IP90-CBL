@@ -58,50 +58,52 @@ public class MovingPlayer {
         InputMap inputMap = component.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap actionMap = component.getActionMap();
 
-        // Left movement
+        // LEFT
         inputMap.put(KeyStroke.getKeyStroke("LEFT"), "moveLeft");
         inputMap.put(KeyStroke.getKeyStroke("A"), "moveLeft");
         actionMap.put("moveLeft", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveLeft();
-                player.movingAnimation(0, 1);
+                player.setRightFacing(false);
+                player.movingAnimation(1);
                 onMove();
             }
         });
 
-        // Right movement
+        // RIGHT
         inputMap.put(KeyStroke.getKeyStroke("RIGHT"), "moveRight");
         inputMap.put(KeyStroke.getKeyStroke("D"), "moveRight");
         actionMap.put("moveRight", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveRight();
-                player.movingAnimation(1, 0);
+                player.setRightFacing(true);
+                player.movingAnimation(0);
                 onMove();
             }
         });
 
-        // Up movement
+        // UP
         inputMap.put(KeyStroke.getKeyStroke("UP"), "moveUp");
         inputMap.put(KeyStroke.getKeyStroke("W"), "moveUp");
         actionMap.put("moveUp", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveUp();
-                player.movingAnimation(2, 2);
+                player.movingAnimation(2);
                 onMove();
             }
         });
 
-        // Down movement
+        // DOWN
         inputMap.put(KeyStroke.getKeyStroke("DOWN"), "moveDown");
         inputMap.put(KeyStroke.getKeyStroke("S"), "moveDown");
         actionMap.put("moveDown", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveDown();
-                player.movingAnimation(2, 2);
+                player.movingAnimation(2);
                 onMove();
             }
         });
