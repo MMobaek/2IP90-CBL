@@ -19,6 +19,7 @@ public class UILayout extends JPanel {
     private final JLabel snackCounterLabel;
     private final GamePanel gamePanel;
     private final JButton backButton;
+    private DebugOverlayPanel debugOverlay;
 
     private static final int LABEL_HEIGHT = 40;
 
@@ -52,6 +53,11 @@ public class UILayout extends JPanel {
         gamePanel.add(snackCounterLabel);
 
         add(gamePanel, BorderLayout.CENTER);
+
+        debugOverlay = new DebugOverlayPanel(player, bookshelf);
+        debugOverlay.setBounds(0, 0, getWidth(), getHeight());
+        gamePanel.add(debugOverlay);
+        gamePanel.setComponentZOrder(debugOverlay, 0); // Bring to front
 
         backButton = createBackButton();
         gamePanel.add(backButton);
@@ -237,6 +243,11 @@ public class UILayout extends JPanel {
             frame.repaint();
         }
     }
+
+    public DebugOverlayPanel getDebugOverlay() {
+        return debugOverlay;
+    }
+
 
     /**
      * Custom JPanel with background image.
