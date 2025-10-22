@@ -2,6 +2,7 @@ package snackademy;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Random;
 import javax.swing.*;
 
 /**
@@ -20,6 +21,7 @@ public class UILayout extends JPanel {
     private final GamePanel gamePanel;
     private final JButton backButton;
     private final DebugOverlayPanel debugOverlay;
+    Random random = new Random();
 
     private static final int LABEL_HEIGHT = 40;
 
@@ -50,7 +52,7 @@ public class UILayout extends JPanel {
         gamePanel.add(movableText);
         gamePanel.add(snackCounterLabel);
 
-        int numShelves = 3; // or how many bookshelves I want
+        int numShelves = 10; // or how many bookshelves I want
         for (int i = 0; i < numShelves; i++) {
             Bookshelf shelf = new Bookshelf(0, 0); // initial position
             bookshelves.add(shelf);
@@ -63,8 +65,11 @@ public class UILayout extends JPanel {
         debugOverlay.setBounds(0, 0, getWidth(), getHeight());
         gamePanel.add(debugOverlay);
         gamePanel.setComponentZOrder(debugOverlay, 0); // Bring to front
+        gamePanel.setComponentZOrder(librarian.getLabel(), 1);
+        gamePanel.setComponentZOrder(snackstation.getLabel(), 2);
+        gamePanel.setComponentZOrder(desk.getLabel(), 3);
         for (Bookshelf shelf : bookshelves) {
-            gamePanel.setComponentZOrder(shelf.getLabel(), 1);
+            gamePanel.setComponentZOrder(shelf.getLabel(), 4);
         }
 
         backButton = createBackButton();
@@ -169,15 +174,35 @@ public class UILayout extends JPanel {
             librarian.getScaledIcon(librarian.getCurrentStateName(), libW, libH));
 
 
-        // Placing the bookshelf
-
+        // Placing the bookshelves
+        int marginX = 150;
+        int sw = w - 2 * marginX; // subtract margin from both sides
         int bsW = w / 8;
         int bsH = h / 4;
-        int spacing = w / (bookshelves.size() + 1);
+        int marginY = bsH / 14;
+        int spacing = sw / (bookshelves.size() + 1);
+
+        int[] yPosition = new int[bookshelves.size()];
+        for (int i = 0; i < bookshelves.size(); i++) {
+            yPosition[i] = marginY + (h - bsH) * (i + 1) / (bookshelves.size() + 1);
+        }
+
+        // Fisher-Yates Shuffle Algorithm
+        for (int i = yPosition.length - 1; i > 0; i--) {
+            
+            // Random index from 0 to i
+            int j = random.nextInt(i + 1);
+          
+            // Swap elements at i and j
+            int t = yPosition[i];
+            yPosition[i] = yPosition[j];
+            yPosition[j] = t;
+        }
 
         for (int i = 0; i < bookshelves.size(); i++) {
-            int bsX = spacing * (i + 1) - bsW / 2;
-            int bsY = h / 2 - bsH / 2;
+            int bsX = marginX + spacing * (i + 1) - bsW / 2;
+
+            int bsY = yPosition[i];
 
             Bookshelf shelf = bookshelves.get(i);
             shelf.getLabel().setBounds(bsX, bsY, bsW, bsH);
@@ -211,15 +236,6 @@ public class UILayout extends JPanel {
     public Snackstation getSnackstation() {
         return snackstation;
     }
-
-    /**
-     * Returns the bookshelf object.
-     *
-     * @return bookshelf
-     */
-    // public Bookshelf getBookshelf() {
-    //     return bookshelf;
-    // }
 
     /**
      * Returns the player object.
