@@ -14,6 +14,7 @@ public class UILayout extends JPanel {
     private final Librarian librarian;
     private final Desk desk;
     private final Snackstation snackstation;
+    private final Bookshelf bookshelf;
     private final JLabel movableText;
     private final JLabel snackCounterLabel;
     private final GamePanel gamePanel;
@@ -32,6 +33,7 @@ public class UILayout extends JPanel {
         librarian = new Librarian(0, 0);
         desk = new Desk(0, 0);
         snackstation = new Snackstation(0, 0);
+        bookshelf = new Bookshelf(0, 0);
 
         movableText = new JLabel("Move with AWSD or arrows, avoid being caught!");
         styleLabel(movableText);
@@ -45,6 +47,7 @@ public class UILayout extends JPanel {
         gamePanel.add(librarian.getLabel());
         gamePanel.add(desk.getLabel());
         gamePanel.add(snackstation.getLabel());
+        gamePanel.add(bookshelf.getLabel());
         gamePanel.add(movableText);
         gamePanel.add(snackCounterLabel);
 
@@ -149,8 +152,14 @@ public class UILayout extends JPanel {
         int libY = 4 * h / 5 - libH / 2;
         librarian.getLabel().setBounds(libX, libY, libW, libH);
         librarian.getLabel().setIcon(
-            librarian.getScaledIcon(librarian.getCurrentStateName(), libW, libH)
-        );
+            librarian.getScaledIcon(librarian.getCurrentStateName(), libW, libH));
+
+        int bsW = w / 8;
+        int bsH = h / 4;
+        int bsX = 100;
+        int bsY = h / 2 - bsH / 2;
+        bookshelf.getLabel().setBounds(bsX, bsY, bsW, bsH);
+        bookshelf.getLabel().setIcon(bookshelf.getScaledIcon(bsW, bsH));
 
         movableText.setBounds(50, 20, 1200, LABEL_HEIGHT);
         snackCounterLabel.setBounds(w - 260, 20, 250, LABEL_HEIGHT);
@@ -176,6 +185,15 @@ public class UILayout extends JPanel {
      */
     public Snackstation getSnackstation() {
         return snackstation;
+    }
+
+    /**
+     * Returns the bookshelf object.
+     *
+     * @return bookshelf
+     */
+    public Bookshelf getBookshelf() {
+        return bookshelf;
     }
 
     /**
