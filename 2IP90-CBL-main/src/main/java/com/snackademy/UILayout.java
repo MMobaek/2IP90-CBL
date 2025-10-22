@@ -14,7 +14,7 @@ public class UILayout extends JPanel {
     private final Librarian librarian;
     private final Desk desk;
     private final Snackstation snackstation;
-    private final Bookshelf bookshelf;
+    private final java.util.List<Bookshelf> bookshelves = new java.util.ArrayList<>();
     private final JLabel movableText;
     private final JLabel snackCounterLabel;
     private final GamePanel gamePanel;
@@ -34,7 +34,6 @@ public class UILayout extends JPanel {
         librarian = new Librarian(0, 0);
         desk = new Desk(0, 0);
         snackstation = new Snackstation(0, 0);
-        bookshelf = new Bookshelf(0, 0);
 
         movableText = new JLabel("Move with AWSD or arrows, avoid being caught!");
         styleLabel(movableText);
@@ -48,17 +47,25 @@ public class UILayout extends JPanel {
         gamePanel.add(librarian.getLabel());
         gamePanel.add(desk.getLabel());
         gamePanel.add(snackstation.getLabel());
-        gamePanel.add(bookshelf.getLabel());
         gamePanel.add(movableText);
         gamePanel.add(snackCounterLabel);
 
+        int numShelves = 3; // or how many bookshelves I want
+        for (int i = 0; i < numShelves; i++) {
+            Bookshelf shelf = new Bookshelf(0, 0); // initial position
+            bookshelves.add(shelf);
+            gamePanel.add(shelf.getLabel());
+        }
+
         add(gamePanel, BorderLayout.CENTER);
 
-        debugOverlay = new DebugOverlayPanel(player, bookshelf);
+        debugOverlay = new DebugOverlayPanel(player, bookshelves);
         debugOverlay.setBounds(0, 0, getWidth(), getHeight());
         gamePanel.add(debugOverlay);
         gamePanel.setComponentZOrder(debugOverlay, 0); // Bring to front
-        gamePanel.setComponentZOrder(bookshelf.getLabel(), 1);
+        for (Bookshelf shelf : bookshelves) {
+            gamePanel.setComponentZOrder(shelf.getLabel(), 1);
+        }
 
         backButton = createBackButton();
         gamePanel.add(backButton);
@@ -166,17 +173,16 @@ public class UILayout extends JPanel {
 
         int bsW = w / 8;
         int bsH = h / 4;
-        int bsX = w / 3 - 2 * bsW / 3;
-        int bsY = h / 2 - bsH / 2;
-        bookshelf.getLabel().setBounds(bsX, bsY, bsW, bsH);
-        bookshelf.getLabel().setIcon(bookshelf.getScaledIcon(bsW, bsH));
+        int spacing = w / (bookshelves.size() + 1);
 
-        bsW = w / 8;
-        bsH = h / 4;
-        bsX = w * 2 / 3 - 1 * bsW / 3;
-        bsY = h / 2 - bsH / 2;
-        bookshelf.getLabel().setBounds(bsX, bsY, bsW, bsH);
-        bookshelf.getLabel().setIcon(bookshelf.getScaledIcon(bsW, bsH));
+        for (int i = 0; i < bookshelves.size(); i++) {
+            int bsX = spacing * (i + 1) - bsW / 2;
+            int bsY = h / 2 - bsH / 2;
+
+            Bookshelf shelf = bookshelves.get(i);
+            shelf.getLabel().setBounds(bsX, bsY, bsW, bsH);
+            shelf.getLabel().setIcon(shelf.getScaledIcon(bsW, bsH));
+        }
 
         movableText.setBounds(50, 20, 1200, LABEL_HEIGHT);
         snackCounterLabel.setBounds(w - 260, 20, 250, LABEL_HEIGHT);
@@ -211,9 +217,9 @@ public class UILayout extends JPanel {
      *
      * @return bookshelf
      */
-    public Bookshelf getBookshelf() {
-        return bookshelf;
-    }
+    // public Bookshelf getBookshelf() {
+    //     return bookshelf;
+    // }
 
     /**
      * Returns the player object.
@@ -241,6 +247,11 @@ public class UILayout extends JPanel {
     public JComponent getGamePanel() {
         return gamePanel;
     }
+
+    public java.util.List<Bookshelf> getBookshelves() {
+        return bookshelves;
+    }
+
 
     /**
      * Returns to the main menu screen.

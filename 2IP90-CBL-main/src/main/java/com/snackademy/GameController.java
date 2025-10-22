@@ -15,7 +15,7 @@ public class GameController {
     private final Player player; // The player object
     private final Librarian librarian; // The librarian object
     private final MovingPlayer movingPlayer; // Handles smooth player movement
-    private final Bookshelf bookshelf; // Needed for collision with player
+    // private final Bookshelf bookshelf; // Needed for collision with player
 
     private int snackTransfers = 0; // Number of snacks delivered
 
@@ -39,7 +39,7 @@ public class GameController {
         this.ui = ui;
         this.player = ui.getPlayer();
         this.librarian = ui.getLibrarian();
-        this.bookshelf = ui.getBookshelf();
+        // this.bookshelf = ui.getBookshelf();
 
         // Initialize player position
         updatePlayerPosition();
@@ -97,13 +97,19 @@ public class GameController {
         Rectangle snackRect = ui.getSnackstation().getLabel().getBounds();
         Rectangle deskRect = ui.getDesk().getLabel().getBounds();
         Rectangle playerBounds = player.getRectangleBounds();
-        Polygon bookshelfHitbox = bookshelf.getPolygonBounds(
-            bookshelf.getLabel().getX(), bookshelf.getLabel().getY());
+        // Polygon bookshelfHitbox = bookshelf.getPolygonBounds(
+            // bookshelf.getLabel().getX(), bookshelf.getLabel().getY());
+        
 
         
 
         checkCaughtCondition();
-        collidingWithBookshelf(playerBounds, bookshelfHitbox);
+        for (Bookshelf shelf : ui.getBookshelves()) {
+            Polygon hitbox = shelf.getPolygonBounds(
+                shelf.getLabel().getX(), shelf.getLabel().getY());
+            collidingWithBookshelf(playerBounds, hitbox);
+        }
+        
         handleSnackStation(playerRect, snackRect);
         handleDeskInteraction(playerRect, deskRect);
 
@@ -164,9 +170,9 @@ public class GameController {
         }
     }
 
-    private void collidingWithBookshelf(Rectangle playerBounds, Polygon bookshelfHitbox) {
-        if (bookshelfHitbox.intersects(playerBounds)) {
-            System.out.println("Collision detected between player and bookshelf!");
+    private void collidingWithBookshelf(Rectangle playerBounds, Polygon hitbox) {
+        if (hitbox.intersects(playerBounds)) {
+            System.out.println("Collision with bookshelf!");
         }
     }
 
