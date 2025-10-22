@@ -1,5 +1,6 @@
 package snackademy;
 
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import javax.swing.SwingUtilities;
 
@@ -14,6 +15,7 @@ public class GameController {
     private final Player player; // The player object
     private final Librarian librarian; // The librarian object
     private final MovingPlayer movingPlayer; // Handles smooth player movement
+    // private final Bookshelf bookshelf; // Needed for collision with player
 
     private int snackTransfers = 0; // Number of snacks delivered
 
@@ -37,6 +39,7 @@ public class GameController {
         this.ui = ui;
         this.player = ui.getPlayer();
         this.librarian = ui.getLibrarian();
+        // this.bookshelf = ui.getBookshelf();
 
         // Initialize player position
         updatePlayerPosition();
@@ -82,6 +85,7 @@ public class GameController {
         thread.start();
     }
 
+    
     /**
      * Handles player movement, snack station and desk logic,
      * and triggers caught screen after librarian transition → attentive.
@@ -92,10 +96,24 @@ public class GameController {
         Rectangle playerRect = player.getLabel().getBounds();
         Rectangle snackRect = ui.getSnackstation().getLabel().getBounds();
         Rectangle deskRect = ui.getDesk().getLabel().getBounds();
+        Rectangle playerBounds = player.getRectangleBounds();
+        // Polygon bookshelfHitbox = bookshelf.getPolygonBounds(
+            // bookshelf.getLabel().getX(), bookshelf.getLabel().getY());
+        
+
+        
 
         checkCaughtCondition();
+        for (Bookshelf shelf : ui.getBookshelves()) {
+            Polygon hitbox = shelf.getPolygonBounds(
+                shelf.getLabel().getX(), shelf.getLabel().getY());
+            collidingWithBookshelf(playerBounds, hitbox);
+        }
+        
         handleSnackStation(playerRect, snackRect);
         handleDeskInteraction(playerRect, deskRect);
+
+        ui.getDebugOverlay().repaint();
 
         // Animate player based on facing direction
         int direction = player.isRightFacing() ? 0 : 1;
@@ -149,6 +167,12 @@ public class GameController {
             player.setHasSnack(false);
         } else {
             wasAtDesk = false;
+        }
+    }
+
+    private void collidingWithBookshelf(Rectangle playerBounds, Polygon hitbox) {
+        if (hitbox.intersects(playerBounds)) {
+            System.out.println("Collision with bookshelf!");
         }
     }
 

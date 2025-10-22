@@ -2,6 +2,7 @@ package snackademy;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -32,6 +33,8 @@ public class Player {
 
     private int[] frames = {3, 5, 4, 5}; // Current animation frames
 
+    Rectangle playerBounds;
+
     /** 
      * Default constructor initializes the player at (0, 0). 
      */
@@ -50,6 +53,8 @@ public class Player {
         this.startY = startY;
         this.x = startX;
         this.y = startY;
+
+        // this.playerBounds = 
 
         icon = loadIcon();
 
@@ -217,7 +222,6 @@ public class Player {
 
     /**
      * Animates the player walking.
-     *
      * @param direction 0 = right, 1 = left
      */
     public void movingAnimation(int direction) {
@@ -263,6 +267,12 @@ public class Player {
         timer.setInitialDelay(0);
         timer.start();
     }
+
+
+    public Rectangle getRectangleBounds() {
+        return new Rectangle(x, y + SIZE * 7 / 8, SIZE, SIZE / 8);
+    }
+
 
     /**
      * Horizontally flips an ImageIcon.

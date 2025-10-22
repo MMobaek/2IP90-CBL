@@ -2,6 +2,7 @@ package snackademy;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Random;
 import javax.swing.*;
 
 /**
@@ -14,10 +15,13 @@ public class UILayout extends JPanel {
     private final Librarian librarian;
     private final Desk desk;
     private final Snackstation snackstation;
+    private final java.util.List<Bookshelf> bookshelves = new java.util.ArrayList<>();
     private final JLabel movableText;
     private final JLabel snackCounterLabel;
     private final GamePanel gamePanel;
     private final JButton backButton;
+    private final DebugOverlayPanel debugOverlay;
+    Random random = new Random();
 
     private static final int LABEL_HEIGHT = 40;
 
@@ -48,7 +52,25 @@ public class UILayout extends JPanel {
         gamePanel.add(movableText);
         gamePanel.add(snackCounterLabel);
 
+        int numShelves = 10; // or how many bookshelves I want
+        for (int i = 0; i < numShelves; i++) {
+            Bookshelf shelf = new Bookshelf(0, 0); // initial position
+            bookshelves.add(shelf);
+            gamePanel.add(shelf.getLabel());
+        }
+
         add(gamePanel, BorderLayout.CENTER);
+
+        debugOverlay = new DebugOverlayPanel(player, bookshelves);
+        debugOverlay.setBounds(0, 0, getWidth(), getHeight());
+        gamePanel.add(debugOverlay);
+        gamePanel.setComponentZOrder(debugOverlay, 0); // Bring to front
+        gamePanel.setComponentZOrder(librarian.getLabel(), 1);
+        gamePanel.setComponentZOrder(snackstation.getLabel(), 2);
+        gamePanel.setComponentZOrder(desk.getLabel(), 3);
+        for (Bookshelf shelf : bookshelves) {
+            gamePanel.setComponentZOrder(shelf.getLabel(), 4);
+        }
 
         backButton = createBackButton();
         gamePanel.add(backButton);
@@ -149,8 +171,43 @@ public class UILayout extends JPanel {
         int libY = 4 * h / 5 - libH / 2;
         librarian.getLabel().setBounds(libX, libY, libW, libH);
         librarian.getLabel().setIcon(
-            librarian.getScaledIcon(librarian.getCurrentStateName(), libW, libH)
-        );
+            librarian.getScaledIcon(librarian.getCurrentStateName(), libW, libH));
+
+
+        // Placing the bookshelves
+        int marginX = 150;
+        int sw = w - 2 * marginX; // subtract margin from both sides
+        int bsW = w / 8;
+        int bsH = h / 4;
+        int marginY = bsH / 14;
+        int spacing = sw / (bookshelves.size() + 1);
+
+        int[] yPosition = new int[bookshelves.size()];
+        for (int i = 0; i < bookshelves.size(); i++) {
+            yPosition[i] = marginY + (h - bsH) * (i + 1) / (bookshelves.size() + 1);
+        }
+
+        // Fisher-Yates Shuffle Algorithm
+        for (int i = yPosition.length - 1; i > 0; i--) {
+            
+            // Random index from 0 to i
+            int j = random.nextInt(i + 1);
+          
+            // Swap elements at i and j
+            int t = yPosition[i];
+            yPosition[i] = yPosition[j];
+            yPosition[j] = t;
+        }
+
+        for (int i = 0; i < bookshelves.size(); i++) {
+            int bsX = marginX + spacing * (i + 1) - bsW / 2;
+
+            int bsY = yPosition[i];
+
+            Bookshelf shelf = bookshelves.get(i);
+            shelf.getLabel().setBounds(bsX, bsY, bsW, bsH);
+            shelf.getLabel().setIcon(shelf.getScaledIcon(bsW, bsH));
+        }
 
         movableText.setBounds(50, 20, 1200, LABEL_HEIGHT);
         snackCounterLabel.setBounds(w - 260, 20, 250, LABEL_HEIGHT);
@@ -158,6 +215,8 @@ public class UILayout extends JPanel {
         int btnW = 180;
         int btnH = 40;
         backButton.setBounds(20, h - btnH - 20, btnW, btnH);
+
+        debugOverlay.setBounds(0, 0, gamePanel.getWidth(), gamePanel.getHeight());
     }
 
     /**
@@ -205,6 +264,11 @@ public class UILayout extends JPanel {
         return gamePanel;
     }
 
+    public java.util.List<Bookshelf> getBookshelves() {
+        return bookshelves;
+    }
+
+
     /**
      * Returns to the main menu screen.
      *
@@ -219,6 +283,11 @@ public class UILayout extends JPanel {
             frame.repaint();
         }
     }
+
+    public DebugOverlayPanel getDebugOverlay() {
+        return debugOverlay;
+    }
+
 
     /**
      * Custom JPanel with background image.
