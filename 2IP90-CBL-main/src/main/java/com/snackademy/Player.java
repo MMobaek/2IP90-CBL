@@ -270,7 +270,7 @@ public class Player {
 
 
     public Rectangle getRectangleBounds() {
-        return new Rectangle(x, y, SIZE, SIZE * 3 / 2);
+        return new Rectangle(x, y + SIZE * 7 / 8, SIZE, SIZE / 8);
     }
 
 

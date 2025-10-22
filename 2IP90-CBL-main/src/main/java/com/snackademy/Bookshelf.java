@@ -18,8 +18,8 @@ public class Bookshelf {
     // Hitboxes
     int[] xPoints = new int[4];
     int[] yPoints = new int[4];
-    int[] xOffsets = {100, 200, 100, 0};
-    int[] yOffsets = {0, 170, 340, 170};
+    int[] xOffsets = {52, 165, 135, 17};
+    int[] yOffsets = {115, 175, 190, 130};
 
     Polygon bookshelfBounds;
     

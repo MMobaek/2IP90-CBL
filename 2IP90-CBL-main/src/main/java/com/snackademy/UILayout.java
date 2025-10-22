@@ -19,7 +19,7 @@ public class UILayout extends JPanel {
     private final JLabel snackCounterLabel;
     private final GamePanel gamePanel;
     private final JButton backButton;
-    private DebugOverlayPanel debugOverlay;
+    private final DebugOverlayPanel debugOverlay;
 
     private static final int LABEL_HEIGHT = 40;
 
@@ -58,6 +58,7 @@ public class UILayout extends JPanel {
         debugOverlay.setBounds(0, 0, getWidth(), getHeight());
         gamePanel.add(debugOverlay);
         gamePanel.setComponentZOrder(debugOverlay, 0); // Bring to front
+        gamePanel.setComponentZOrder(bookshelf.getLabel(), 1);
 
         backButton = createBackButton();
         gamePanel.add(backButton);
@@ -160,10 +161,20 @@ public class UILayout extends JPanel {
         librarian.getLabel().setIcon(
             librarian.getScaledIcon(librarian.getCurrentStateName(), libW, libH));
 
+
+        // Placing the bookshelf
+
         int bsW = w / 8;
         int bsH = h / 4;
-        int bsX = 100;
+        int bsX = w / 3 - 2 * bsW / 3;
         int bsY = h / 2 - bsH / 2;
+        bookshelf.getLabel().setBounds(bsX, bsY, bsW, bsH);
+        bookshelf.getLabel().setIcon(bookshelf.getScaledIcon(bsW, bsH));
+
+        bsW = w / 8;
+        bsH = h / 4;
+        bsX = w * 2 / 3 - 1 * bsW / 3;
+        bsY = h / 2 - bsH / 2;
         bookshelf.getLabel().setBounds(bsX, bsY, bsW, bsH);
         bookshelf.getLabel().setIcon(bookshelf.getScaledIcon(bsW, bsH));
 
