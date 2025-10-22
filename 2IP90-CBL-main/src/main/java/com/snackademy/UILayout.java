@@ -173,6 +173,8 @@ public class UILayout extends JPanel {
         int btnW = 180;
         int btnH = 40;
         backButton.setBounds(20, h - btnH - 20, btnW, btnH);
+
+        debugOverlay.setBounds(0, 0, gamePanel.getWidth(), gamePanel.getHeight());
     }
 
     /**
