@@ -64,13 +64,6 @@ public class UILayout extends JPanel {
         debugOverlay = new DebugOverlayPanel(player, bookshelves);
         debugOverlay.setBounds(0, 0, getWidth(), getHeight());
         gamePanel.add(debugOverlay);
-        gamePanel.setComponentZOrder(debugOverlay, 0); // Bring to front
-        gamePanel.setComponentZOrder(librarian.getLabel(), 1);
-        gamePanel.setComponentZOrder(snackstation.getLabel(), 2);
-        gamePanel.setComponentZOrder(desk.getLabel(), 3);
-        for (Bookshelf shelf : bookshelves) {
-            gamePanel.setComponentZOrder(shelf.getLabel(), 4);
-        }
 
         backButton = createBackButton();
         gamePanel.add(backButton);
@@ -217,6 +210,34 @@ public class UILayout extends JPanel {
         backButton.setBounds(20, h - btnH - 20, btnW, btnH);
 
         debugOverlay.setBounds(0, 0, gamePanel.getWidth(), gamePanel.getHeight());
+        updateLayer();
+    }
+
+
+    /** 
+     * Making the correct stuff go infront of other stuff.
+     */
+    public void updateLayer() {
+        // Create a list of all components to sort by Y position
+        java.util.List<JComponent> layeredComponents = new java.util.ArrayList<>();
+
+        // Add bookshelves
+        for (Bookshelf shelf : bookshelves) {
+            layeredComponents.add(shelf.getLabel());
+        }
+
+        // Add other components that should be layered (e.g., player, librarian)
+        layeredComponents.add(player.getLabel());
+        Component librarianComponent = librarian.getLabel();
+        layeredComponents.add(desk.getLabel());
+        layeredComponents.add(snackstation.getLabel());
+
+        // sort objects by height
+        layeredComponents.sort((a, b) -> Integer.compare(b.getY(), a.getY()));
+        gamePanel.setComponentZOrder(librarianComponent, 0);
+        for (int i = 1; i < layeredComponents.size() + 1; i++) {
+            gamePanel.setComponentZOrder(layeredComponents.get(i), i);
+        }
     }
 
     /**

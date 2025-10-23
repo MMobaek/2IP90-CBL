@@ -118,13 +118,15 @@ public class GameController {
         // Animate player based on facing direction
         int direction = player.isRightFacing() ? 0 : 1;
         player.movingAnimation(direction);
+        ui.updateLayer();
     }
 
     /**
      * Checks if the player has been caught by the librarian.
      */
     private void checkCaughtCondition() {
-        if (librarian.getCurrentStateName().equals("ATTENTIVE") && !isCaughtScreenVisible) {
+        if (librarian.getCurrentStateName().equals("ATTENTIVE") 
+            && !isCaughtScreenVisible && player.hasSnack()) {
             isCaughtScreenVisible = true;
             SwingUtilities.invokeLater(() -> {
                 CaughtScreen caughtScreen = new CaughtScreen(ui, () -> {
@@ -173,6 +175,14 @@ public class GameController {
     private void collidingWithBookshelf(Rectangle playerBounds, Polygon hitbox) {
         if (hitbox.intersects(playerBounds)) {
             System.out.println("Collision with bookshelf!");
+            isCaughtScreenVisible = true;
+            SwingUtilities.invokeLater(() -> {
+                CaughtScreen caughtScreen = new CaughtScreen(ui, () -> {
+                    resetGame();
+                    isCaughtScreenVisible = false;
+                });
+                caughtScreen.setVisible(true);
+            });
         }
     }
 
