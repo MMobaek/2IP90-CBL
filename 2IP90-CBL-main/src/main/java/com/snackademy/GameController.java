@@ -118,6 +118,7 @@ public class GameController {
         // Animate player based on facing direction
         int direction = player.isRightFacing() ? 0 : 1;
         player.movingAnimation(direction);
+        ui.updateLayer();
     }
 
     /**
