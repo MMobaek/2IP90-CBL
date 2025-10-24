@@ -69,7 +69,7 @@ Inspired by “Red Light, Green Light”:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/snackademy.git
+   git clone https://github.com/MMobaek/snackademy.git
 
 2. Open the project in your Java IDE (IntelliJ IDEA, Eclipse, or VS Code with Java support).
 
