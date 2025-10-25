@@ -91,7 +91,7 @@ public class MovingPlayer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveUp();
-                player.movingAnimation(2);
+                player.movingAnimation(3);
                 onMove();
             }
         });
@@ -103,7 +103,7 @@ public class MovingPlayer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 player.moveDown();
-                player.movingAnimation(2);
+                player.movingAnimation(3);
                 onMove();
             }
         });

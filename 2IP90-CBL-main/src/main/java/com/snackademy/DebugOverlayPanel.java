@@ -4,9 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
-import java.awt.Rectangle;
 import java.util.List;
-
 import javax.swing.JPanel;
 
 
@@ -16,6 +14,7 @@ public class DebugOverlayPanel extends JPanel {
     private Player player;
     private final List<Bookshelf> bookshelves;
 
+    /** For debug purposes to see hitboxes of playerfeet and bookshelfbase. */
     public DebugOverlayPanel(Player player, List<Bookshelf> bookshelves) {
         this.player = player;
         this.bookshelves = bookshelves;
@@ -28,13 +27,13 @@ public class DebugOverlayPanel extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
 
         g2d.setColor(Color.RED);
-        g2d.draw(player.getRectangleBounds());
+        // g2d.draw(player.getRectangleBounds());
 
         g2d.setColor(Color.BLUE);
         for (Bookshelf shelf : bookshelves) {
             Polygon bounds = shelf.getPolygonBounds(
                 shelf.getLabel().getX(), shelf.getLabel().getY());
-            g2d.drawPolygon(bounds);
+            // g2d.drawPolygon(bounds);
         }
     }
     

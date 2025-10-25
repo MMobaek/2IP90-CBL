@@ -237,7 +237,17 @@ public class Player {
             frames[3] = 5;
         }
 
-        rightFacing = (direction == 0);
+        if (direction == 0) {
+            rightFacing = true;
+        } else if (direction == 1) {
+            rightFacing = false;
+        }
+
+        Timer existingTimer = (Timer) label.getClientProperty("animationTimer");
+        if (existingTimer != null && existingTimer.isRunning()) {
+            return; // Skip starting a new animation
+        }
+
         final int frameDelay = 150;
         final int[] currentFrame = {0};
 

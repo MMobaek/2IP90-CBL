@@ -9,6 +9,7 @@ import javax.swing.*;
 public class HelpScreen extends JPanel {
 
     private final JFrame parentFrame;
+    public JLabel helpText;
 
     /**
      * Constructs a HelpScreen with a reference to the parent frame.
@@ -28,17 +29,23 @@ public class HelpScreen extends JPanel {
         setLayout(new BorderLayout());
 
         // Help text
-        JTextArea helpText = new JTextArea(
-            "Snackademy Help:\n\n"
-                + "- Move with arrow keys or AWSD.\n"
-                + "- Collect snacks at the Snack Station.\n"
-                + "- Deliver snacks to the Desk.\n"
-                + "- Avoid being caught by the librarian!"
+        helpText = new JLabel(
+            "<html><div style='text-align: center; color: yellow;'>"
+                + "<h2>Snackademy Help:</h2>"
+                + "<p>- Move with arrow keys or WASD.<br>"
+                + "- Collect snacks at the Snack Station.<br>"
+                + "- Deliver snacks to the Desk.<br>"
+                + "- You can go behind bookshelves;<br>"
+                + "- Don't crash into bookshelves.<br>"
+                + "- Avoid being caught by the librarian!<br>"
+                + "- Good Luck!</p>"
+                + "</div></html>"
         );
-        helpText.setEditable(false);
         helpText.setForeground(Color.YELLOW);
         helpText.setBackground(new Color(200, 0, 0));
         helpText.setFont(new Font("Arial", Font.BOLD, 20));
+        helpText.setHorizontalAlignment(SwingConstants.CENTER);
+        helpText.setVerticalAlignment(SwingConstants.CENTER);
         add(helpText, BorderLayout.CENTER);
 
         // Back button

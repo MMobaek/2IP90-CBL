@@ -84,26 +84,7 @@ public class StartMenuScreen extends JPanel {
      * @param e action event from the button
      */
     private void showHelp(java.awt.event.ActionEvent e) {
-        JPanel helpPanel = new JPanel(new BorderLayout());
-        helpPanel.setBackground(new Color(200, 0, 0));
-
-        JLabel helpText = new JLabel(
-            "<html><center>Use WASD or arrow keys to move.<br>" 
-            + "Deliver snacks to the desk.<br>" 
-            + "Don't get caught by the librarian!</center></html>"
-        );
-        helpText.setForeground(Color.YELLOW);
-        helpText.setFont(new Font("Arial", Font.BOLD, 24));
-        helpText.setHorizontalAlignment(SwingConstants.CENTER);
-        helpPanel.add(helpText, BorderLayout.CENTER);
-
-        JButton backButton = new JButton("Back to Menu");
-        styleButtonSmall(backButton);
-        backButton.addActionListener(this::backToMenu);
-
-        helpPanel.add(backButton, BorderLayout.SOUTH);
-
-        frame.setContentPane(helpPanel);
+        frame.setContentPane(new HelpScreen(frame));
         frame.revalidate();
         frame.repaint();
     }
