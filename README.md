@@ -83,5 +83,5 @@ Inspired by “Red Light, Green Light”:
 
 | Name          | 
 | ------------- | 
-| Magnus Mobeak |  
+| Magnus Mobæk |  
 | Eline Smit    | 
