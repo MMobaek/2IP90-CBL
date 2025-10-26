@@ -203,23 +203,18 @@ public class UILayout extends JPanel {
     private void backToMenu(ActionEvent ignored) {
         GameFrame gameFrame = (GameFrame) SwingUtilities.getWindowAncestor(this);
         if (gameFrame != null) {
-            int option = JOptionPane.showConfirmDialog(
-                    gameFrame,
-                    "Do you want to save your progress?",
-                    "Save Progress",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE
-            );
-
-            if (option == JOptionPane.YES_OPTION) {
-                if (gameFrame.frameStartMenu != null) {
-                    gameFrame.frameStartMenu.leaderboard.add(snackCounter);
-                }
+            SaveProgressScreen saveDialog = new SaveProgressScreen(gameFrame, snackCounter);
+            String name = saveDialog.getPlayerName();
+            if (name != null && !name.isEmpty() && gameFrame.frameStartMenu != null) {
+                gameFrame.frameStartMenu.leaderboard.add(new ScoreEntry(name, snackCounter));
             }
-
             gameFrame.showStartMenu();
         }
     }
+
+
+
+
 
     // Public getters
     public Desk getDesk() { return desk; }

@@ -8,7 +8,7 @@ import java.util.List;
 public class StartMenuScreen extends JPanel {
 
     public final GameFrame frame;
-    public final List<Integer> leaderboard = new ArrayList<>();
+    public final List<ScoreEntry> leaderboard = new ArrayList<>(); // store name + score
 
     public StartMenuScreen(GameFrame frame) {
         this.frame = frame;
@@ -84,22 +84,47 @@ public class StartMenuScreen extends JPanel {
         frame.repaint();
     }
 
+    // Show leaderboard with names + scores
     public void showLeaderboard() {
-        StringBuilder sb = new StringBuilder("<html><center>Leaderboard:<br>");
-        leaderboard.stream().sorted(Collections.reverseOrder()).forEach(score -> sb.append(score).append("<br>"));
-        sb.append("</center></html>");
-
         JPanel lbPanel = new JPanel(new BorderLayout());
         lbPanel.setBackground(new Color(200, 0, 0));
-        JLabel lbLabel = new JLabel(sb.toString(), SwingConstants.CENTER);
-        lbLabel.setForeground(Color.YELLOW);
-        lbLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        lbPanel.add(lbLabel, BorderLayout.CENTER);
+
+        JLabel titleLabel = new JLabel("Leaderboard", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
+        titleLabel.setForeground(Color.YELLOW);
+        lbPanel.add(titleLabel, BorderLayout.NORTH);
+
+        JPanel scoresPanel = new JPanel();
+        scoresPanel.setBackground(new Color(200, 0, 0));
+        scoresPanel.setLayout(new GridLayout(Math.max(leaderboard.size(), 1), 1, 10, 10));
+
+        if (leaderboard.isEmpty()) {
+            JLabel emptyLabel = new JLabel("No saved progress yet!", SwingConstants.CENTER);
+            emptyLabel.setFont(new Font("Arial", Font.BOLD, 24));
+            emptyLabel.setForeground(Color.YELLOW);
+            scoresPanel.add(emptyLabel);
+        } else {
+            leaderboard.sort(null); // Sort descending by score
+            int rank = 1;
+            for (ScoreEntry entry : leaderboard) {
+                JLabel scoreLabel = new JLabel(
+                        rank + ". " + entry.getName() + ": " + entry.getScore() + " snacks delivered",
+                        SwingConstants.CENTER
+                );
+                scoreLabel.setFont(new Font("Arial", Font.BOLD, 24));
+                scoreLabel.setForeground(Color.YELLOW);
+                scoresPanel.add(scoreLabel);
+                rank++;
+            }
+        }
+
+        lbPanel.add(scoresPanel, BorderLayout.CENTER);
 
         JButton backButton = new JButton("Back to Menu");
+        backButton.setFont(new Font("Arial", Font.BOLD, 24));
         backButton.setBackground(Color.YELLOW);
         backButton.setForeground(Color.RED);
-        backButton.setFont(new Font("Arial", Font.BOLD, 20));
+        backButton.setFocusPainted(false);
         backButton.addActionListener(e -> frame.showStartMenu());
         lbPanel.add(backButton, BorderLayout.SOUTH);
 
