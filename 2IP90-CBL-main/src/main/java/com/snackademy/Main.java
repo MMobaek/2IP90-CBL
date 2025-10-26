@@ -26,8 +26,6 @@ import javax.swing.SwingUtilities;
  * {@code Desk} — represents a static desk object with a resizable image.
  * {@code Snackstation} — represents a static snack station object with a resizable image.
  *
- * Follows the Eindhoven University of Technology 2IP90 Java Coding Standard.
- * This ensures readable, consistent, and maintainable source code.
  * 
  * Authors:
  * Magnus Mobeak

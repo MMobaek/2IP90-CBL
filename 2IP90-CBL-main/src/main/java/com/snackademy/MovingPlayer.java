@@ -16,7 +16,7 @@ public class MovingPlayer {
     /** The Swing component that receives keyboard input (usually the game panel). */
     private final JComponent component;
 
-    /** Callback that is triggered after each movement (optional). */
+    // Callback that is triggered after each movement
     private Runnable onMoveCallback;
 
     /**

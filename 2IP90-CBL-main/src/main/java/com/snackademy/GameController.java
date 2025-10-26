@@ -15,7 +15,6 @@ public class GameController {
     private final Player player; // The player object
     private final Librarian librarian; // The librarian object
     private final MovingPlayer movingPlayer; // Handles smooth player movement
-    // private final Bookshelf bookshelf; // Needed for collision with player
 
     private int snackTransfers = 0; // Number of snacks delivered
 
@@ -39,7 +38,6 @@ public class GameController {
         this.ui = ui;
         this.player = ui.getPlayer();
         this.librarian = ui.getLibrarian();
-        // this.bookshelf = ui.getBookshelf();
 
         // Initialize player position
         updatePlayerPosition();
@@ -85,7 +83,6 @@ public class GameController {
         thread.start();
     }
 
-    
     /**
      * Handles player movement, snack station and desk logic,
      * and triggers caught screen after librarian transition → attentive.
@@ -97,19 +94,15 @@ public class GameController {
         Rectangle snackRect = ui.getSnackstation().getLabel().getBounds();
         Rectangle deskRect = ui.getDesk().getLabel().getBounds();
         Rectangle playerBounds = player.getRectangleBounds();
-        // Polygon bookshelfHitbox = bookshelf.getPolygonBounds(
-            // bookshelf.getLabel().getX(), bookshelf.getLabel().getY());
-        
-
-        
 
         checkCaughtCondition();
+
         for (Bookshelf shelf : ui.getBookshelves()) {
             Polygon hitbox = shelf.getPolygonBounds(
                 shelf.getLabel().getX(), shelf.getLabel().getY());
             collidingWithBookshelf(playerBounds, hitbox);
         }
-        
+
         handleSnackStation(playerRect, snackRect);
         handleDeskInteraction(playerRect, deskRect);
 
@@ -125,14 +118,18 @@ public class GameController {
      * Checks if the player has been caught by the librarian.
      */
     private void checkCaughtCondition() {
-        if (librarian.getCurrentStateName().equals("ATTENTIVE") 
+        if (librarian.getCurrentStateName().equals("ATTENTIVE")
             && !isCaughtScreenVisible && player.hasSnack()) {
             isCaughtScreenVisible = true;
             SwingUtilities.invokeLater(() -> {
-                CaughtScreen caughtScreen = new CaughtScreen(ui, () -> {
-                    resetGame();
-                    isCaughtScreenVisible = false;
-                });
+                CaughtScreen caughtScreen = new CaughtScreen(
+                    ui,
+                    "You were caught by the librarian!",
+                    () -> {
+                        resetGame();
+                        isCaughtScreenVisible = false;
+                    }
+                );
                 caughtScreen.setVisible(true);
             });
         }
@@ -172,15 +169,22 @@ public class GameController {
         }
     }
 
+    /**
+     * Detects collision with a bookshelf and triggers a caught screen.
+     */
     private void collidingWithBookshelf(Rectangle playerBounds, Polygon hitbox) {
-        if (hitbox.intersects(playerBounds)) {
+        if (hitbox.intersects(playerBounds) && !isCaughtScreenVisible) {
             System.out.println("Collision with bookshelf!");
             isCaughtScreenVisible = true;
             SwingUtilities.invokeLater(() -> {
-                CaughtScreen caughtScreen = new CaughtScreen(ui, () -> {
-                    resetGame();
-                    isCaughtScreenVisible = false;
-                });
+                CaughtScreen caughtScreen = new CaughtScreen(
+                    ui,
+                    "You walked into a bookshelf!",
+                    () -> {
+                        resetGame();
+                        isCaughtScreenVisible = false;
+                    }
+                );
                 caughtScreen.setVisible(true);
             });
         }
