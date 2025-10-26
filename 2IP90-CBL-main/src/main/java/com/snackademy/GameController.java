@@ -5,49 +5,36 @@ import java.awt.Rectangle;
 import javax.swing.SwingUtilities;
 
 /**
- * GameController connects the UILayout, Player, and Librarian.
- * It handles player movement, snack state, and shows a "caught screen" when the player is caught.
- * Movement is handled entirely via keyboard (WASD + arrows) using MovingPlayer.
+ * GameController connects UILayout, Player, and Librarian.
+ * Handles player movement, snacks, caught screens, and sound effects.
  */
 public class GameController {
 
-    private final UILayout ui; // The game's user interface
-    private final Player player; // The player object
-    private final Librarian librarian; // The librarian object
-    private final MovingPlayer movingPlayer; // Handles smooth player movement
+    private final UILayout ui;
+    private final Player player;
+    private final Librarian librarian;
+    private final MovingPlayer movingPlayer;
 
-    private int snackTransfers = 0; // Number of snacks delivered
-
-    // Store player position
+    private int snackTransfers = 0;
     private int playerX;
     private int playerY;
 
-    // Track whether the player was previously at snack station or desk
     private boolean wasAtSnackStation = false;
     private boolean wasAtDesk = false;
-
-    // Prevent multiple caught screens
     private boolean isCaughtScreenVisible = false;
 
-    /**
-     * Constructs the GameController and initializes the game.
-     *
-     * @param ui The UILayout of the game
-     */
     public GameController(UILayout ui) {
         this.ui = ui;
         this.player = ui.getPlayer();
         this.librarian = ui.getLibrarian();
 
-        // Initialize player position
         updatePlayerPosition();
 
-        // Initialize MovingPlayer for smooth keyboard-controlled movement
         this.movingPlayer = new MovingPlayer(this.player, ui.getGamePanel());
         movingPlayer.setOnMoveCallback(this::handlePlayerMovement);
 
-        // Start background game loop for librarian updates
         startGameLoop();
+        // NOTE: Do NOT start background music here; GameFrame handles it
     }
 
     private void updatePlayerPosition() {
@@ -55,18 +42,9 @@ public class GameController {
         playerY = player.getY();
     }
 
-    public int getPlayerX() {
-        return playerX;
-    }
+    public int getPlayerX() { return playerX; }
+    public int getPlayerY() { return playerY; }
 
-    public int getPlayerY() {
-        return playerY;
-    }
-
-    /**
-     * Background thread updating the librarian's state
-     * including INATTENTIVE → TRANSITION → ATTENTIVE.
-     */
     private void startGameLoop() {
         Thread thread = new Thread(() -> {
             while (true) {
@@ -83,10 +61,6 @@ public class GameController {
         thread.start();
     }
 
-    /**
-     * Handles player movement, snack station and desk logic,
-     * and triggers caught screen after librarian transition → attentive.
-     */
     private void handlePlayerMovement() {
         updatePlayerPosition();
 
@@ -98,8 +72,7 @@ public class GameController {
         checkCaughtCondition();
 
         for (Bookshelf shelf : ui.getBookshelves()) {
-            Polygon hitbox = shelf.getPolygonBounds(
-                shelf.getLabel().getX(), shelf.getLabel().getY());
+            Polygon hitbox = shelf.getPolygonBounds(shelf.getLabel().getX(), shelf.getLabel().getY());
             collidingWithBookshelf(playerBounds, hitbox);
         }
 
@@ -108,19 +81,19 @@ public class GameController {
 
         ui.getDebugOverlay().repaint();
 
-        // Animate player based on facing direction
         int direction = player.isRightFacing() ? 0 : 1;
         player.movingAnimation(direction);
         ui.updateLayer();
     }
 
-    /**
-     * Checks if the player has been caught by the librarian.
-     */
     private void checkCaughtCondition() {
         if (librarian.getCurrentStateName().equals("ATTENTIVE")
             && !isCaughtScreenVisible && player.hasSnack()) {
+
             isCaughtScreenVisible = true;
+            getMusicPlayer().stopMusic();  // stop background music
+            playFailureSound();
+
             SwingUtilities.invokeLater(() -> {
                 CaughtScreen caughtScreen = new CaughtScreen(
                     ui,
@@ -135,9 +108,6 @@ public class GameController {
         }
     }
 
-    /**
-     * Handles player interactions with the snack station.
-     */
     private void handleSnackStation(Rectangle playerRect, Rectangle snackRect) {
         if (playerRect.intersects(snackRect)) {
             if (!wasAtSnackStation) {
@@ -150,9 +120,6 @@ public class GameController {
         }
     }
 
-    /**
-     * Handles player interactions with the desk.
-     */
     private void handleDeskInteraction(Rectangle playerRect, Rectangle deskRect) {
         if (playerRect.intersects(deskRect)) {
             if (!wasAtDesk) {
@@ -161,6 +128,7 @@ public class GameController {
                 if (player.hasSnack()) {
                     snackTransfers++;
                     ui.updateSnackCounter(snackTransfers);
+                    playPointSound();
                 }
             }
             player.setHasSnack(false);
@@ -169,13 +137,13 @@ public class GameController {
         }
     }
 
-    /**
-     * Detects collision with a bookshelf and triggers a caught screen.
-     */
     private void collidingWithBookshelf(Rectangle playerBounds, Polygon hitbox) {
         if (hitbox.intersects(playerBounds) && !isCaughtScreenVisible) {
             System.out.println("Collision with bookshelf!");
             isCaughtScreenVisible = true;
+            getMusicPlayer().stopMusic(); // stop background music
+            playFailureSound();
+
             SwingUtilities.invokeLater(() -> {
                 CaughtScreen caughtScreen = new CaughtScreen(
                     ui,
@@ -190,9 +158,22 @@ public class GameController {
         }
     }
 
-    /**
-     * Reset the game state when the player is caught.
-     */
+    // ------------------- AUDIO -------------------
+
+    private MusicPlayer getMusicPlayer() {
+        return ((GameFrame) SwingUtilities.getWindowAncestor(ui)).getMusicPlayer();
+    }
+
+    private void playPointSound() {
+        getMusicPlayer().playSound("src/main/java/com/snackademy/resources/point.wav");
+    }
+
+    private void playFailureSound() {
+        getMusicPlayer().playSound("src/main/java/com/snackademy/resources/failure.wav");
+    }
+
+    // ------------------- RESET -------------------
+
     private void resetGame() {
         player.resetPosition();
         int startX = ui.getSnackstation().getLabel().getX();
@@ -204,5 +185,8 @@ public class GameController {
 
         player.setHasSnack(false);
         ui.setMovableTextMessage("Move with the letters AWSD or the arrows but do not get caught!");
+
+        // Restart game background music (only one track)
+        ((GameFrame) SwingUtilities.getWindowAncestor(ui)).playGameMusic();
     }
 }
