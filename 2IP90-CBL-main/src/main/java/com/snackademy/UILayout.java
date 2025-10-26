@@ -2,14 +2,14 @@ package snackademy;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Random;
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import javax.swing.*;
 
 /**
  * UILayout sets up the main game panel for Snackademy.
- * Contains player, librarian, desk, snackstation, movable text, and snack counter.
+ * Contains player, librarian, desk, snackstation, movable text, snack counter, back button with save feature, and debug overlay.
  */
 public class UILayout extends JPanel {
 
@@ -24,6 +24,7 @@ public class UILayout extends JPanel {
     private final JButton backButton;
     private final DebugOverlayPanel debugOverlay;
     private final Random random = new Random();
+    private int snackCounter = 0;
 
     private static final int LABEL_HEIGHT = 40;
 
@@ -52,10 +53,8 @@ public class UILayout extends JPanel {
         gamePanel.add(movableText);
         gamePanel.add(snackCounterLabel);
 
-        //  Use bookshelf count from settings
+        // Bookshelves
         int numShelves = SettingsScreen.getBookshelfCount();
-        System.out.println("[UILayout] Using bookshelf count: " + numShelves);
-
         for (int i = 0; i < numShelves; i++) {
             Bookshelf shelf = new Bookshelf(0, 0);
             bookshelves.add(shelf);
@@ -106,6 +105,7 @@ public class UILayout extends JPanel {
     }
 
     public void updateSnackCounter(int count) {
+        snackCounter = count;
         SwingUtilities.invokeLater(() ->
             snackCounterLabel.setText("Snacks delivered: " + count)
         );
@@ -159,7 +159,6 @@ public class UILayout extends JPanel {
             yPosition[i] = marginY + (h - bsH) * (i + 1) / (bookshelves.size() + 1);
         }
 
-        // Shuffle vertically
         for (int i = yPosition.length - 1; i > 0; i--) {
             int j = random.nextInt(i + 1);
             int t = yPosition[i];
@@ -170,7 +169,6 @@ public class UILayout extends JPanel {
         for (int i = 0; i < bookshelves.size(); i++) {
             int bsX = marginX + spacing * (i + 1) - bsW / 2;
             int bsY = yPosition[i];
-
             Bookshelf shelf = bookshelves.get(i);
             shelf.getLabel().setBounds(bsX, bsY, bsW, bsH);
             shelf.getLabel().setIcon(shelf.getScaledIcon(bsW, bsH));
@@ -202,24 +200,38 @@ public class UILayout extends JPanel {
             gamePanel.setComponentZOrder(layeredComponents.get(i - 1), i);
     }
 
-    public Desk getDesk() { return desk; }
-    public Snackstation getSnackstation() { return snackstation; }
-    public Player getPlayer() { return player; }
-    public Librarian getLibrarian() { return librarian; }
-    public JComponent getGamePanel() { return gamePanel; }
-    public List<Bookshelf> getBookshelves() { return bookshelves; }
-    public DebugOverlayPanel getDebugOverlay() { return debugOverlay; }
-
     private void backToMenu(ActionEvent ignored) {
         GameFrame gameFrame = (GameFrame) SwingUtilities.getWindowAncestor(this);
         if (gameFrame != null) {
+            int option = JOptionPane.showConfirmDialog(
+                    gameFrame,
+                    "Do you want to save your progress?",
+                    "Save Progress",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (option == JOptionPane.YES_OPTION) {
+                if (gameFrame.frameStartMenu != null) {
+                    gameFrame.frameStartMenu.leaderboard.add(snackCounter);
+                }
+            }
+
             gameFrame.showStartMenu();
         }
     }
 
+    // Public getters
+    public Desk getDesk() { return desk; }
+    public Snackstation getSnackstation() { return snackstation; }
+    public Player getPlayer() { return player; }
+    public Librarian getLibrarian() { return librarian; }
+    public List<Bookshelf> getBookshelves() { return bookshelves; }
+    public DebugOverlayPanel getDebugOverlay() { return debugOverlay; }
+    public JPanel getGamePanel() { return gamePanel; } // <--- fixes GameController error
 
+    // Inner GamePanel class
     private class GamePanel extends JPanel {
-
         private final Image background;
 
         public GamePanel() {
