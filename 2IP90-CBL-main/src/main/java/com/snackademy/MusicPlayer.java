@@ -3,14 +3,25 @@ package snackademy;
 import javax.sound.sampled.*;
 import java.io.File;
 
+/**
+ * Handles background music and sound effects for Snackademy.
+ * <p>
+ * Can play looping music tracks or one-time sound effects from WAV files.
+ */
 public class MusicPlayer {
 
+    /** Clip currently used for background music. */
     private Clip musicClip;
 
+    // -------------------------------------------------------------------------
+    // Music Control
+    // -------------------------------------------------------------------------
+
     /**
-     * Play background music from a file path.
-     * @param path Path to WAV file
-     * @param loop Whether to loop continuously
+     * Plays background music from a WAV file.
+     *
+     * @param path Path to the WAV file
+     * @param loop If true, the music loops continuously
      */
     public void playMusic(String path, boolean loop) {
         stopMusic();
@@ -18,9 +29,11 @@ public class MusicPlayer {
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(new File(path));
             musicClip = AudioSystem.getClip();
             musicClip.open(audioIn);
+
             if (loop) {
                 musicClip.loop(Clip.LOOP_CONTINUOUSLY);
             }
+
             musicClip.start();
         } catch (Exception e) {
             System.err.println("Failed to play music: " + path);
@@ -29,7 +42,7 @@ public class MusicPlayer {
     }
 
     /**
-     * Stop the currently playing music.
+     * Stops the currently playing background music.
      */
     public void stopMusic() {
         if (musicClip != null && musicClip.isRunning()) {
@@ -38,9 +51,14 @@ public class MusicPlayer {
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Sound Effects
+    // -------------------------------------------------------------------------
+
     /**
-     * Play a short sound effect from a file path (non-looping).
-     * @param path Path to WAV file
+     * Plays a short, non-looping sound effect from a WAV file.
+     *
+     * @param path Path to the WAV file
      */
     public void playSound(String path) {
         new Thread(() -> {

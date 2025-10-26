@@ -9,7 +9,8 @@ import javax.swing.*;
 
 /**
  * UILayout sets up the main game panel for Snackademy.
- * Contains player, librarian, desk, snackstation, movable text, snack counter, back button with save feature, and debug overlay.
+ * Contains player, librarian, desk, snackstation, movable text, snack counter,
+ * back button with save feature, and debug overlay.
  */
 public class UILayout extends JPanel {
 
@@ -28,6 +29,9 @@ public class UILayout extends JPanel {
 
     private static final int LABEL_HEIGHT = 40;
 
+    /**
+     * Constructs the main UILayout panel.
+     */
     public UILayout() {
         setLayout(new BorderLayout());
         setBackground(Color.DARK_GRAY);
@@ -37,7 +41,9 @@ public class UILayout extends JPanel {
         desk = new Desk(0, 0);
         snackstation = new Snackstation(0, 0);
 
-        movableText = new JLabel("Move with AWSD or arrows, avoid being caught!");
+        movableText = new JLabel(
+            "Move with AWSD or arrows, avoid being caught!"
+        );
         styleLabel(movableText);
 
         snackCounterLabel = new JLabel("Snacks delivered: 0");
@@ -75,7 +81,7 @@ public class UILayout extends JPanel {
 
         addComponentListener(new ComponentAdapter() {
             @Override
-            public void componentResized(ComponentEvent ignored) {
+            public void componentResized(ComponentEvent _ignored) {
                 positionObjects();
             }
         });
@@ -83,6 +89,11 @@ public class UILayout extends JPanel {
         SwingUtilities.invokeLater(this::positionObjects);
     }
 
+    /**
+     * Styles a JLabel with font, colors, border, and alignment.
+     *
+     * @param label the JLabel to style
+     */
     private void styleLabel(JLabel label) {
         label.setFont(new Font("Arial", Font.BOLD, 20));
         label.setForeground(Color.YELLOW);
@@ -93,6 +104,11 @@ public class UILayout extends JPanel {
         label.setVerticalAlignment(SwingConstants.CENTER);
     }
 
+    /**
+     * Creates the back button with an action listener.
+     *
+     * @return the JButton for returning to the menu
+     */
     private JButton createBackButton() {
         JButton back = new JButton("Back to Menu");
         back.setFont(new Font("Arial", Font.BOLD, 16));
@@ -104,17 +120,30 @@ public class UILayout extends JPanel {
         return back;
     }
 
+    /**
+     * Updates the snack counter label.
+     *
+     * @param count the current snack count
+     */
     public void updateSnackCounter(int count) {
         snackCounter = count;
-        SwingUtilities.invokeLater(() ->
+        SwingUtilities.invokeLater(() -> 
             snackCounterLabel.setText("Snacks delivered: " + count)
         );
     }
 
+    /**
+     * Sets the movable text message.
+     *
+     * @param message the message to display
+     */
     public void setMovableTextMessage(String message) {
         SwingUtilities.invokeLater(() -> movableText.setText(message));
     }
 
+    /**
+     * Positions all game objects dynamically based on panel size.
+     */
     private void positionObjects() {
         int w = gamePanel.getWidth();
         int h = gamePanel.getHeight();
@@ -144,7 +173,9 @@ public class UILayout extends JPanel {
         int libX = w / 2 - libW / 2;
         int libY = 4 * h / 5 - libH / 2;
         librarian.getLabel().setBounds(libX, libY, libW, libH);
-        librarian.getLabel().setIcon(librarian.getScaledIcon(librarian.getCurrentStateName(), libW, libH));
+        librarian.getLabel().setIcon(
+            librarian.getScaledIcon(librarian.getCurrentStateName(), libW, libH)
+        );
 
         // Bookshelves
         int marginX = 150;
@@ -186,9 +217,15 @@ public class UILayout extends JPanel {
         updateLayer();
     }
 
+    /**
+     * Updates the Z-order of layered components.
+     */
     public void updateLayer() {
         List<JComponent> layeredComponents = new ArrayList<>();
-        for (Bookshelf shelf : bookshelves) layeredComponents.add(shelf.getLabel());
+        for (Bookshelf shelf : bookshelves) {
+            layeredComponents.add(shelf.getLabel());
+        }
+
         layeredComponents.add(player.getLabel());
         Component librarianComponent = librarian.getLabel();
         layeredComponents.add(desk.getLabel());
@@ -196,41 +233,72 @@ public class UILayout extends JPanel {
 
         layeredComponents.sort((a, b) -> Integer.compare(b.getY(), a.getY()));
         gamePanel.setComponentZOrder(librarianComponent, 0);
-        for (int i = 1; i < layeredComponents.size() + 1; i++)
+
+        for (int i = 1; i < layeredComponents.size() + 1; i++) {
             gamePanel.setComponentZOrder(layeredComponents.get(i - 1), i);
+        }
     }
 
-    private void backToMenu(ActionEvent ignored) {
+    /**
+     * Handles the back button action.
+     *
+     * @param _ignored the ActionEvent (unused)
+     */
+    private void backToMenu(ActionEvent _ignored) {
         GameFrame gameFrame = (GameFrame) SwingUtilities.getWindowAncestor(this);
         if (gameFrame != null) {
             SaveProgressScreen saveDialog = new SaveProgressScreen(gameFrame, snackCounter);
             String name = saveDialog.getPlayerName();
             if (name != null && !name.isEmpty() && gameFrame.frameStartMenu != null) {
-                gameFrame.frameStartMenu.leaderboard.add(new ScoreEntry(name, snackCounter));
+                gameFrame.frameStartMenu.leaderboard.add(
+                    new ScoreEntry(name, snackCounter)
+                );
             }
             gameFrame.showStartMenu();
         }
     }
 
-
-
-
-
     // Public getters
-    public Desk getDesk() { return desk; }
-    public Snackstation getSnackstation() { return snackstation; }
-    public Player getPlayer() { return player; }
-    public Librarian getLibrarian() { return librarian; }
-    public List<Bookshelf> getBookshelves() { return bookshelves; }
-    public DebugOverlayPanel getDebugOverlay() { return debugOverlay; }
-    public JPanel getGamePanel() { return gamePanel; } // <--- fixes GameController error
 
-    // Inner GamePanel class
+    public Desk getDesk() {
+        return desk;
+    }
+
+    public Snackstation getSnackstation() {
+        return snackstation;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public Librarian getLibrarian() {
+        return librarian;
+    }
+
+    public List<Bookshelf> getBookshelves() {
+        return bookshelves;
+    }
+
+    public DebugOverlayPanel getDebugOverlay() {
+        return debugOverlay;
+    }
+
+    public JPanel getGamePanel() {
+        return gamePanel;
+    }
+
+    /**
+     * Inner class for the game panel.
+     */
     private class GamePanel extends JPanel {
+
         private final Image background;
 
         public GamePanel() {
-            background = new ImageIcon(getClass().getResource("/snackademy/resources/Background.png")).getImage();
+            background = new ImageIcon(
+                getClass().getResource("/snackademy/resources/Background.png")
+            ).getImage();
         }
 
         @Override

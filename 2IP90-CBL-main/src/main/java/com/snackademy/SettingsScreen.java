@@ -6,6 +6,7 @@ import javax.swing.*;
 
 /**
  * Settings screen to adjust game options such as player speed and bookshelf count.
+ * Users can modify the player speed and the number of bookshelves in the game.
  */
 public class SettingsScreen extends JPanel {
 
@@ -13,9 +14,14 @@ public class SettingsScreen extends JPanel {
     private final JSlider speedSlider;
     private final JSlider bookshelfSlider;
 
-    // Persist bookshelf count
+    /** Persist bookshelf count */
     public static int bookshelfCount = 10; // default
 
+    /**
+     * Constructs a SettingsScreen.
+     *
+     * @param frame the parent GameFrame to return to after adjusting settings
+     */
     public SettingsScreen(GameFrame frame) {
         this.frame = frame;
 
@@ -84,11 +90,12 @@ public class SettingsScreen extends JPanel {
         gbc.gridy = 3;
         add(backButton, gbc);
 
-        // Button actions
-        applyButton.addActionListener(this::applySettings);
-        backButton.addActionListener(this::goBack);
+        // Button actions (parameter renamed for 2IP90)
+        applyButton.addActionListener(this::applySettingsAction);
+        backButton.addActionListener(this::goBackAction);
     }
 
+    /** Styles a JButton with consistent colors and font. */
     private void styleButton(JButton button) {
         button.setBackground(Color.YELLOW);
         button.setForeground(Color.RED);
@@ -96,7 +103,12 @@ public class SettingsScreen extends JPanel {
         button.setFocusPainted(false);
     }
 
-    private void applySettings(ActionEvent e) {
+    /**
+     * Apply the chosen settings for player speed and bookshelf count.
+     *
+     * @param event the ActionEvent (not used)
+     */
+    private void applySettingsAction(ActionEvent event) {
         Player.setSpeed(speedSlider.getValue());
         bookshelfCount = bookshelfSlider.getValue();
 
@@ -127,10 +139,16 @@ public class SettingsScreen extends JPanel {
         dialog.setVisible(true);
     }
 
-    private void goBack(ActionEvent e) {
+    /**
+     * Return to the start menu.
+     *
+     * @param event the ActionEvent (not used)
+     */
+    private void goBackAction(ActionEvent event) {
         frame.showStartMenu();
     }
 
+    /** Returns the current bookshelf count. */
     public static int getBookshelfCount() {
         return bookshelfCount;
     }
