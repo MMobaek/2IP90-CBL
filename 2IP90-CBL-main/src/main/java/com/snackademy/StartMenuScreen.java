@@ -1,22 +1,31 @@
 package snackademy;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 /**
- * Start menu screen with Start Game, Help, and Settings buttons.
- * Allows navigation to the game, help panel, or settings panel.
+ * Start menu screen for Snackademy.
+ * Provides buttons to start the game, view help, adjust settings, and view the leaderboard.
  */
 public class StartMenuScreen extends JPanel {
 
-    private final JFrame frame;
+    public final GameFrame frame;
+    public final List<ScoreEntry> leaderboard = new ArrayList<>();
 
     /**
-     * Constructs the start menu screen.
-     *
-     * @param frame the main application frame
+     * Create a start menu screen.
+     * @param frame the parent GameFrame
      */
-    public StartMenuScreen(JFrame frame) {
+    public StartMenuScreen(GameFrame frame) {
         this.frame = frame;
 
         setLayout(new GridBagLayout());
@@ -24,6 +33,8 @@ public class StartMenuScreen extends JPanel {
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(15, 15, 15, 15);
+        gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
 
         JLabel title = new JLabel("Snackademy");
         title.setFont(new Font("Arial", Font.BOLD, 48));
@@ -46,15 +57,19 @@ public class StartMenuScreen extends JPanel {
         gbc.gridy = 3;
         add(settingsButton, gbc);
 
-        // Action listeners
-        startButton.addActionListener(this::startGame);
-        helpButton.addActionListener(this::showHelp);
-        settingsButton.addActionListener(this::showSettings);
+        JButton leaderboardButton = new JButton("Leaderboard");
+        styleButton(leaderboardButton);
+        gbc.gridy = 4;
+        add(leaderboardButton, gbc);
+
+        startButton.addActionListener(e -> frame.startGame());
+        helpButton.addActionListener(e -> showHelp());
+        settingsButton.addActionListener(e -> frame.showSettingsScreen());
+        leaderboardButton.addActionListener(e -> showLeaderboard());
     }
 
     /**
-     * Styles a JButton consistently for the start menu.
-     *
+     * Style a JButton consistently.
      * @param button the button to style
      */
     private void styleButton(JButton button) {
@@ -64,44 +79,44 @@ public class StartMenuScreen extends JPanel {
     }
 
     /**
-     * Starts the game and switches to the game UI.
-     *
-     * @param e action event from the button
+     * Show the help screen with instructions.
      */
-    private void startGame(java.awt.event.ActionEvent e) {
-        UILayout ui = new UILayout();
-        frame.setContentPane(ui);
-        frame.revalidate();
-        frame.repaint();
-
-        ui.getGamePanel().requestFocusInWindow();
-        new GameController(ui);
-    }
-
-    /**
-     * Shows the help panel with instructions.
-     *
-     * @param e action event from the button
-     */
-    private void showHelp(java.awt.event.ActionEvent e) {
-        JPanel helpPanel = new JPanel(new BorderLayout());
+    private void showHelp() {
+        JPanel helpPanel = new JPanel();
+        helpPanel.setLayout(new GridBagLayout());
         helpPanel.setBackground(new Color(200, 0, 0));
 
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
         JLabel helpText = new JLabel(
-            "<html><center>Use WASD or arrow keys to move.<br>" 
-            + "Deliver snacks to the desk.<br>" 
-            + "Don't get caught by the librarian!</center></html>"
+            "<html><center>Welcome to Snackademy!<br>" 
+            + "Your mission: sneak snacks into the library of Metaforum at TU/e.<br>" 
+            + "- Move using WASD or arrow keys.<br>" 
+            + "- Collect snacks at the Snack Station and deliver them to the Desk.<br>" 
+            + "- Beware! You cannot move when the librarian is watching<br>" 
+            + "  if you are carrying snacks.<br>" 
+            + "- If you have no snacks, you can move freely even while<br>" 
+            + "  the librarian is watching.<br>" 
+            + "- Do not walk into bookshelves; the librarian will notice.<br>" 
+            + "- Adjust your speed and the number of bookshelves in Settings.<br>" 
+            + "Deliver as many snacks as possible without getting caught!" 
+            + "</center></html>",
+            SwingConstants.CENTER
         );
         helpText.setForeground(Color.YELLOW);
         helpText.setFont(new Font("Arial", Font.BOLD, 24));
-        helpText.setHorizontalAlignment(SwingConstants.CENTER);
-        helpPanel.add(helpText, BorderLayout.CENTER);
+        helpPanel.add(helpText, gbc);
 
+        gbc.gridy = 1;
         JButton backButton = new JButton("Back to Menu");
-        styleButtonSmall(backButton);
-        backButton.addActionListener(this::backToMenu);
-
-        helpPanel.add(backButton, BorderLayout.SOUTH);
+        backButton.setBackground(Color.YELLOW);
+        backButton.setForeground(Color.RED);
+        backButton.setFont(new Font("Arial", Font.BOLD, 20));
+        backButton.addActionListener(e -> frame.showStartMenu());
+        helpPanel.add(backButton, gbc);
 
         frame.setContentPane(helpPanel);
         frame.revalidate();
@@ -109,81 +124,67 @@ public class StartMenuScreen extends JPanel {
     }
 
     /**
-     * Shows the settings panel with player speed adjustment.
-     *
-     * @param e action event from the button
+     * Show the leaderboard with names and scores.
      */
-    private void showSettings(java.awt.event.ActionEvent e) {
-        JPanel settingsPanel = new JPanel(new GridBagLayout());
-        settingsPanel.setBackground(new Color(200, 0, 0));
+    public void showLeaderboard() {
+        JPanel lbPanel = new JPanel();
+        lbPanel.setLayout(new GridBagLayout());
+        lbPanel.setBackground(new Color(200, 0, 0));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(15, 15, 15, 15);
-
-        JLabel settingsTitle = new JLabel("Settings");
-        settingsTitle.setFont(new Font("Arial", Font.BOLD, 36));
-        settingsTitle.setForeground(Color.YELLOW);
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.gridx = 0;
         gbc.gridy = 0;
-        settingsPanel.add(settingsTitle, gbc);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel speedLabel = new JLabel("Player speed:");
-        speedLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        speedLabel.setForeground(Color.YELLOW);
+        JLabel titleLabel = new JLabel("Leaderboard", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
+        titleLabel.setForeground(Color.YELLOW);
+        lbPanel.add(titleLabel, gbc);
+
         gbc.gridy = 1;
-        settingsPanel.add(speedLabel, gbc);
+        JPanel scoresPanel = new JPanel();
+        scoresPanel.setBackground(new Color(200, 0, 0));
+        scoresPanel.setLayout(new GridBagLayout());
 
-        JSlider speedSlider = new JSlider(1, 20, Player.getSpeed());
-        speedSlider.setMajorTickSpacing(5);
-        speedSlider.setPaintTicks(true);
-        speedSlider.setPaintLabels(true);
+        if (leaderboard.isEmpty()) {
+            JLabel emptyLabel = new JLabel("No saved progress yet!", SwingConstants.CENTER);
+            emptyLabel.setFont(new Font("Arial", Font.BOLD, 24));
+            emptyLabel.setForeground(Color.YELLOW);
+            scoresPanel.add(emptyLabel);
+        } else {
+            leaderboard.sort(null); // Sort descending by score
+            int rank = 1;
+            for (ScoreEntry entry : leaderboard) {
+                JLabel scoreLabel = new JLabel(
+                    rank + ". " + entry.getName() + ": "
+                    + entry.getScore() + " snacks delivered",
+                    SwingConstants.CENTER
+                );
+                scoreLabel.setFont(new Font("Arial", Font.BOLD, 24));
+                scoreLabel.setForeground(Color.YELLOW);
+                GridBagConstraints gbcScore = new GridBagConstraints();
+                gbcScore.gridy = rank - 1;
+                gbcScore.gridx = 0;
+                gbcScore.insets = new Insets(5, 5, 5, 5);
+                scoresPanel.add(scoreLabel, gbcScore);
+                rank++;
+            }
+        }
+
+        lbPanel.add(scoresPanel, gbc);
+
         gbc.gridy = 2;
-        settingsPanel.add(speedSlider, gbc);
-
-        JButton applyButton = new JButton("Apply");
-        styleButtonSmall(applyButton);
-        applyButton.addActionListener(ev -> applySpeed(speedSlider));
-        gbc.gridy = 3;
-        settingsPanel.add(applyButton, gbc);
-
         JButton backButton = new JButton("Back to Menu");
-        styleButtonSmall(backButton);
-        backButton.addActionListener(this::backToMenu);
-        gbc.gridy = 4;
-        settingsPanel.add(backButton, gbc);
+        backButton.setFont(new Font("Arial", Font.BOLD, 24));
+        backButton.setBackground(Color.YELLOW);
+        backButton.setForeground(Color.RED);
+        backButton.setFocusPainted(false);
+        backButton.addActionListener(e -> frame.showStartMenu());
+        lbPanel.add(backButton, gbc);
 
-        frame.setContentPane(settingsPanel);
+        frame.setContentPane(lbPanel);
         frame.revalidate();
         frame.repaint();
-    }
-
-    /**
-     * Applies the speed selected in the slider.
-     *
-     * @param slider the JSlider containing the new speed value
-     */
-    private void applySpeed(JSlider slider) {
-        Player.setSpeed(slider.getValue());
-    }
-
-    /**
-     * Returns to the main menu.
-     *
-     * @param e action event from the button
-     */
-    private void backToMenu(java.awt.event.ActionEvent e) {
-        frame.setContentPane(this);
-        frame.revalidate();
-        frame.repaint();
-    }
-
-    /**
-     * Styles a smaller JButton for back/apply buttons.
-     *
-     * @param button the button to style
-     */
-    private void styleButtonSmall(JButton button) {
-        button.setBackground(Color.YELLOW);
-        button.setForeground(Color.RED);
-        button.setFont(new Font("Arial", Font.BOLD, 20));
     }
 }

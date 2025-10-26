@@ -5,28 +5,58 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 /**
- * Represents the Desk object in the Snackademy game.
- * The desk can be scaled dynamically and displayed via a JLabel.
+ * Represents a Desk object in the Snackademy game.
+ * <p>
+ * The desk can be displayed via a JLabel and its image can be scaled dynamically.
  */
 public class Desk {
 
+    // -------------------------------------------------------------------------
+    // Constants
+    // -------------------------------------------------------------------------
+
+    /** Default width and height of the desk image in pixels. */
     private static final int DEFAULT_SIZE = 150;
+
+    // -------------------------------------------------------------------------
+    // Instance Variables
+    // -------------------------------------------------------------------------
+
+    /** JLabel to display the desk in the UI. */
     private final JLabel label;
+
+    /** ImageIcon representing the desk image. */
     private ImageIcon icon;
 
+    // -------------------------------------------------------------------------
+    // Constructor
+    // -------------------------------------------------------------------------
+
     /**
-     * Constructs a Desk at a specific (x, y) position.
+     * Constructs a Desk at the specified position.
      *
-     * @param x X coordinate
-     * @param y Y coordinate
+     * @param x X coordinate of the desk
+     * @param y Y coordinate of the desk
      */
     public Desk(int x, int y) {
         icon = loadIcon("/snackademy/resources/desk.png");
         label = new JLabel(icon);
+
+        // Position and size the label in the UI
         label.setBounds(x, y, DEFAULT_SIZE, DEFAULT_SIZE);
     }
 
-    /** Loads an ImageIcon from the given resource path. */
+    // -------------------------------------------------------------------------
+    // Image Loading
+    // -------------------------------------------------------------------------
+
+    /**
+     * Loads an ImageIcon from a resource path.
+     *
+     * @param path the resource path of the image
+     * @return ImageIcon loaded from the resource
+     * @throws IllegalStateException if the resource cannot be found
+     */
     private ImageIcon loadIcon(String path) {
         java.net.URL url = getClass().getResource(path);
         if (url == null) {
@@ -35,20 +65,24 @@ public class Desk {
         return new ImageIcon(url);
     }
 
+    // -------------------------------------------------------------------------
+    // Accessor Methods
+    // -------------------------------------------------------------------------
+
     /**
-     * Returns the JLabel used to display the Desk.
+     * Returns the JLabel used to display the desk.
      *
-     * @return JLabel representing the Desk
+     * @return JLabel representing the desk
      */
     public JLabel getLabel() {
         return label;
     }
 
     /**
-     * Returns a scaled ImageIcon for dynamic resizing.
+     * Returns a scaled version of the desk image for dynamic resizing.
      *
-     * @param width  new width
-     * @param height new height
+     * @param width new width in pixels
+     * @param height new height in pixels
      * @return scaled ImageIcon
      */
     public ImageIcon getScaledIcon(int width, int height) {
