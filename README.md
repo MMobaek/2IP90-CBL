@@ -11,10 +11,10 @@ Inspired by “Red Light, Green Light”:
 
 ## Learning Goals
 
-| Area                     | Goal                                                                 |
-|---------------------------|----------------------------------------------------------------------|
-| Game Design / UX          | Make the game fun, clear, and balanced (feedback, timing, difficulty). |
-| Version Control (Git)     | Improve collaboration and code sharing.                              |
+| Area                     | Goal                                                                           |
+|---------------------------|-------------------------------------------------------------------------------|
+| Game Design / UX          | Make the game fun, clear, and balanced (feedback, timing, difficulty).        |
+| Version Control (Git)     | Improve collaboration and code sharing: https://github.com/MMobaek/2IP90-CBL  |
 
 ---
 
