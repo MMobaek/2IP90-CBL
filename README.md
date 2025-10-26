@@ -53,15 +53,59 @@ Inspired by “Red Light, Green Light”:
 
 ---
 
-## Class Overview
+## Project Structure
 
-| Class Name     | Responsibility |
-|----------------|----------------|
-| **Main**           | Launches the game and initializes core objects. |
-| **UILayout**       | Builds and manages the graphical interface (Swing panels, labels, buttons). |
-| **GameController** | Handles input, timing, and game state logic. |
-| **Player**         | Manages player movement, actions, and rendering. |
-| **Librarian**      | Controls the attention phases and determines whether the player is being watched. |
+All Java classes are inside the `com.snackademy` package. Below is an overview of major classes and their roles:
+
+### Main Classes
+
+| Class | Description |
+|-------|-------------|
+| `Main` | Entry point of the game. Launches the `GameFrame` and shows the start menu. |
+| `GameFrame` | The main JFrame container. Switches between start menu, game, leaderboard, and settings screens. |
+| `UILayout` | Builds and displays the main game panel. Handles object positioning, resizing, snack counter, movable text, and debug overlay. |
+| `GameController` | Connects UI with player and librarian. Handles input, movement logic, and game rules. |
+
+### Player and Movement
+
+| Class | Description |
+|-------|-------------|
+| `Player` | Represents the player character. Manages position, walking animation, and interactions. |
+| `MovingPlayer` | Listens for keyboard input to move the player and triggers callbacks. |
+
+### Librarian
+
+| Class | Description |
+|-------|-------------|
+| `Librarian` | Implements a finite state machine for the librarian’s attention: INATTENTIVE, TRANSITION, ATTENTIVE. Updates the icon and behavior. |
+
+### Objects in the Game
+
+| Class | Description |
+|-------|-------------|
+| `Desk` | Represents the static desk object where snacks are delivered. |
+| `Snackstation` | Static station where snacks are picked up. |
+| `Bookshelf` | Randomly positioned obstacles in the library. |
+| `DebugOverlayPanel` | Optional overlay for debug visualization of object positions. |
+
+### UI and Screens
+
+| Class | Description |
+|-------|-------------|
+| `StartMenuScreen` | Main start menu with buttons to start game, view leaderboard, or access settings. |
+| `SettingsScreen` | Allows adjusting game settings such as bookshelf count and difficulty. |
+| `LeaderboardScreen` | Displays high scores of players. |
+| `CaughtScreen` | Shown when the player is caught by the librarian. |
+| `SaveProgressScreen` | Dialog to save player’s snack count and name. |
+| `HelpScreen` | Provides instructions and controls for the game. |
+
+### Utilities
+
+| Class | Description |
+|-------|-------------|
+| `ScoreEntry` | Stores player name and score for leaderboard. |
+| `MusicPlayer` | Handles background music during gameplay. |
+
 
 ---
 
