@@ -1,7 +1,8 @@
 package snackademy;
 
-import javax.sound.sampled.*;
 import java.io.File;
+import javax.sound.sampled.*;
+
 
 /**
  * Handles background music and sound effects for Snackademy.

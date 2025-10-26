@@ -237,9 +237,20 @@ public class Player {
             frames[3] = 5;
         }
 
-        rightFacing = (direction == 0);
+        if (direction == 0) {
+            rightFacing = true;
+        } else if (direction == 1) {
+            rightFacing = false;
+        }
+        
         final int frameDelay = 150;
         final int[] currentFrame = {0};
+
+        Timer existingTimer = (Timer) label.getClientProperty("animationTimer");
+        if (existingTimer != null && existingTimer.isRunning()) {
+            return; // Skip starting a new animation
+        }
+
 
         Timer timer = new Timer(frameDelay, e -> {
             Icon iconToShow = imageIcons[frames[currentFrame[0]]];

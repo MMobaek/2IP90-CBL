@@ -66,7 +66,7 @@ public class HelpScreen extends JPanel {
         backButton.setForeground(new Color(200, 0, 0));
         backButton.setFont(new Font("Arial", Font.BOLD, 24));
         backButton.setFocusPainted(false);
-        backButton.addActionListener(_ -> handleBackAction());
+        backButton.addActionListener(e -> handleBackAction());
 
         add(backButton, BorderLayout.SOUTH);
     }

@@ -66,7 +66,7 @@ public class LeaderboardScreen extends JPanel {
         backButton.setBackground(Color.YELLOW);
         backButton.setForeground(Color.RED);
         backButton.setFocusPainted(false);
-        backButton.addActionListener(_ -> frame.showStartMenu()); // Lambda param unused
+        backButton.addActionListener(e -> frame.showStartMenu());
         add(backButton, BorderLayout.SOUTH);
     }
 }
