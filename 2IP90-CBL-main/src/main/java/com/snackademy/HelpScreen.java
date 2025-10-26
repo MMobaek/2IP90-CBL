@@ -8,21 +8,18 @@ import javax.swing.*;
  */
 public class HelpScreen extends JPanel {
 
-    private final JFrame parentFrame;
+    private final GameFrame parentFrame;
 
     /**
      * Constructs a HelpScreen with a reference to the parent frame.
      *
-     * @param frame the parent JFrame to return to when clicking "Back"
+     * @param frame the parent GameFrame to return to when clicking "Back"
      */
-    public HelpScreen(JFrame frame) {
+    public HelpScreen(GameFrame frame) {
         this.parentFrame = frame;
         initializeUI();
     }
 
-    /**
-     * Initializes the UI elements of the Help screen.
-     */
     private void initializeUI() {
         setBackground(new Color(200, 0, 0)); // red background
         setLayout(new BorderLayout());
@@ -52,13 +49,7 @@ public class HelpScreen extends JPanel {
         add(backButton, BorderLayout.SOUTH);
     }
 
-    /**
-     * Handles the Back button action — returns to the Start Menu.
-     */
     private void handleBackAction() {
-        parentFrame.getContentPane().removeAll();
-        parentFrame.getContentPane().add(new StartMenuScreen(parentFrame));
-        parentFrame.revalidate();
-        parentFrame.repaint();
+        parentFrame.showStartMenu();
     }
 }

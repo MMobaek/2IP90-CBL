@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Random;
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * UILayout sets up the main game panel for Snackademy.
@@ -15,19 +17,16 @@ public class UILayout extends JPanel {
     private final Librarian librarian;
     private final Desk desk;
     private final Snackstation snackstation;
-    private final java.util.List<Bookshelf> bookshelves = new java.util.ArrayList<>();
+    private final List<Bookshelf> bookshelves = new ArrayList<>();
     private final JLabel movableText;
     private final JLabel snackCounterLabel;
     private final GamePanel gamePanel;
     private final JButton backButton;
     private final DebugOverlayPanel debugOverlay;
-    Random random = new Random();
+    private final Random random = new Random();
 
     private static final int LABEL_HEIGHT = 40;
 
-    /**
-     * Constructs the UILayout and initializes all game objects and UI elements.
-     */
     public UILayout() {
         setLayout(new BorderLayout());
         setBackground(Color.DARK_GRAY);
@@ -45,6 +44,7 @@ public class UILayout extends JPanel {
 
         gamePanel = new GamePanel();
         gamePanel.setLayout(null);
+
         gamePanel.add(player.getLabel());
         gamePanel.add(librarian.getLabel());
         gamePanel.add(desk.getLabel());
@@ -52,9 +52,12 @@ public class UILayout extends JPanel {
         gamePanel.add(movableText);
         gamePanel.add(snackCounterLabel);
 
-        int numShelves = 10; // or how many bookshelves I want
+        //  Use bookshelf count from settings
+        int numShelves = SettingsScreen.getBookshelfCount();
+        System.out.println("[UILayout] Using bookshelf count: " + numShelves);
+
         for (int i = 0; i < numShelves; i++) {
-            Bookshelf shelf = new Bookshelf(0, 0); // initial position
+            Bookshelf shelf = new Bookshelf(0, 0);
             bookshelves.add(shelf);
             gamePanel.add(shelf.getLabel());
         }
@@ -81,11 +84,6 @@ public class UILayout extends JPanel {
         SwingUtilities.invokeLater(this::positionObjects);
     }
 
-    /**
-     * Styles a JLabel with red background, yellow text, and border.
-     *
-     * @param label the JLabel to style
-     */
     private void styleLabel(JLabel label) {
         label.setFont(new Font("Arial", Font.BOLD, 20));
         label.setForeground(Color.YELLOW);
@@ -96,11 +94,6 @@ public class UILayout extends JPanel {
         label.setVerticalAlignment(SwingConstants.CENTER);
     }
 
-    /**
-     * Creates a styled "Back to Menu" button.
-     *
-     * @return the JButton configured as a back button
-     */
     private JButton createBackButton() {
         JButton back = new JButton("Back to Menu");
         back.setFont(new Font("Arial", Font.BOLD, 16));
@@ -108,39 +101,25 @@ public class UILayout extends JPanel {
         back.setForeground(Color.YELLOW);
         back.setFocusPainted(false);
         back.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 3));
-
         back.addActionListener(this::backToMenu);
-
         return back;
     }
 
-    /**
-     * Updates the snack counter label.
-     *
-     * @param count the number of snacks delivered
-     */
     public void updateSnackCounter(int count) {
         SwingUtilities.invokeLater(() ->
             snackCounterLabel.setText("Snacks delivered: " + count)
         );
     }
 
-    /**
-     * Updates the movable text label.
-     *
-     * @param message the message to display
-     */
     public void setMovableTextMessage(String message) {
         SwingUtilities.invokeLater(() -> movableText.setText(message));
     }
 
-    /**
-     * Dynamically positions all game objects based on panel size.
-     */
     private void positionObjects() {
         int w = gamePanel.getWidth();
         int h = gamePanel.getHeight();
 
+        // Snackstation
         int snackW = w / 8;
         int snackH = h / 4;
         int snackX = 10;
@@ -151,6 +130,7 @@ public class UILayout extends JPanel {
         player.resetPosition();
         player.moveTo(snackX, snackY);
 
+        // Desk
         int deskW = w / 8;
         int deskH = h / 4;
         int deskX = w - deskW - 10;
@@ -158,18 +138,17 @@ public class UILayout extends JPanel {
         desk.getLabel().setBounds(deskX, deskY, deskW, deskH);
         desk.getLabel().setIcon(desk.getScaledIcon(deskW, deskH));
 
+        // Librarian
         int libW = w / 8;
         int libH = h / 4;
         int libX = w / 2 - libW / 2;
         int libY = 4 * h / 5 - libH / 2;
         librarian.getLabel().setBounds(libX, libY, libW, libH);
-        librarian.getLabel().setIcon(
-            librarian.getScaledIcon(librarian.getCurrentStateName(), libW, libH));
+        librarian.getLabel().setIcon(librarian.getScaledIcon(librarian.getCurrentStateName(), libW, libH));
 
-
-        // Placing the bookshelves
+        // Bookshelves
         int marginX = 150;
-        int sw = w - 2 * marginX; // subtract margin from both sides
+        int sw = w - 2 * marginX;
         int bsW = w / 8;
         int bsH = h / 4;
         int marginY = bsH / 14;
@@ -180,13 +159,9 @@ public class UILayout extends JPanel {
             yPosition[i] = marginY + (h - bsH) * (i + 1) / (bookshelves.size() + 1);
         }
 
-        // Fisher-Yates Shuffle Algorithm
+        // Shuffle vertically
         for (int i = yPosition.length - 1; i > 0; i--) {
-            
-            // Random index from 0 to i
             int j = random.nextInt(i + 1);
-          
-            // Swap elements at i and j
             int t = yPosition[i];
             yPosition[i] = yPosition[j];
             yPosition[j] = t;
@@ -194,7 +169,6 @@ public class UILayout extends JPanel {
 
         for (int i = 0; i < bookshelves.size(); i++) {
             int bsX = marginX + spacing * (i + 1) - bsW / 2;
-
             int bsY = yPosition[i];
 
             Bookshelf shelf = bookshelves.get(i);
@@ -210,116 +184,46 @@ public class UILayout extends JPanel {
         backButton.setBounds(20, h - btnH - 20, btnW, btnH);
 
         debugOverlay.setBounds(0, 0, gamePanel.getWidth(), gamePanel.getHeight());
+
         updateLayer();
     }
 
-
-    /** 
-     * Making the correct stuff go infront of other stuff.
-     */
     public void updateLayer() {
-        // Create a list of all components to sort by Y position
-        java.util.List<JComponent> layeredComponents = new java.util.ArrayList<>();
-
-        // Add bookshelves
-        for (Bookshelf shelf : bookshelves) {
-            layeredComponents.add(shelf.getLabel());
-        }
-
-        // Add other components that should be layered (e.g., player, librarian)
+        List<JComponent> layeredComponents = new ArrayList<>();
+        for (Bookshelf shelf : bookshelves) layeredComponents.add(shelf.getLabel());
         layeredComponents.add(player.getLabel());
         Component librarianComponent = librarian.getLabel();
         layeredComponents.add(desk.getLabel());
         layeredComponents.add(snackstation.getLabel());
 
-        // sort objects by height
         layeredComponents.sort((a, b) -> Integer.compare(b.getY(), a.getY()));
         gamePanel.setComponentZOrder(librarianComponent, 0);
-        for (int i = 1; i < layeredComponents.size() + 1; i++) {
-            gamePanel.setComponentZOrder(layeredComponents.get(i), i);
-        }
+        for (int i = 1; i < layeredComponents.size() + 1; i++)
+            gamePanel.setComponentZOrder(layeredComponents.get(i - 1), i);
     }
 
-    /**
-     * Returns the desk object.
-     *
-     * @return desk
-     */
-    public Desk getDesk() {
-        return desk;
-    }
+    public Desk getDesk() { return desk; }
+    public Snackstation getSnackstation() { return snackstation; }
+    public Player getPlayer() { return player; }
+    public Librarian getLibrarian() { return librarian; }
+    public JComponent getGamePanel() { return gamePanel; }
+    public List<Bookshelf> getBookshelves() { return bookshelves; }
+    public DebugOverlayPanel getDebugOverlay() { return debugOverlay; }
 
-    /**
-     * Returns the snackstation object.
-     *
-     * @return snackstation
-     */
-    public Snackstation getSnackstation() {
-        return snackstation;
-    }
-
-    /**
-     * Returns the player object.
-     *
-     * @return player
-     */
-    public Player getPlayer() {
-        return player;
-    }
-
-    /**
-     * Returns the librarian object.
-     *
-     * @return librarian
-     */
-    public Librarian getLibrarian() {
-        return librarian;
-    }
-
-    /**
-     * Returns the main game panel.
-     *
-     * @return gamePanel
-     */
-    public JComponent getGamePanel() {
-        return gamePanel;
-    }
-
-    public java.util.List<Bookshelf> getBookshelves() {
-        return bookshelves;
-    }
-
-
-    /**
-     * Returns to the main menu screen.
-     *
-     * @param ignored unused ActionEvent
-     */
     private void backToMenu(ActionEvent ignored) {
-        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-        if (frame != null) {
-            frame.getContentPane().removeAll();
-            frame.getContentPane().add(new StartMenuScreen(frame));
-            frame.revalidate();
-            frame.repaint();
+        GameFrame gameFrame = (GameFrame) SwingUtilities.getWindowAncestor(this);
+        if (gameFrame != null) {
+            gameFrame.showStartMenu();
         }
     }
 
-    public DebugOverlayPanel getDebugOverlay() {
-        return debugOverlay;
-    }
 
-
-    /**
-     * Custom JPanel with background image.
-     */
     private class GamePanel extends JPanel {
 
         private final Image background;
 
         public GamePanel() {
-            background = new ImageIcon(getClass()
-                .getResource("/snackademy/resources/Background.png")).getImage();
+            background = new ImageIcon(getClass().getResource("/snackademy/resources/Background.png")).getImage();
         }
 
         @Override
